@@ -5,9 +5,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>智慧選股</title>
-    
+    <link rel="stylesheet" href="">
     {% load static %}
     <link href="{% static 'css/bootstrap-4.3.1.css' %}" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="{% static 'images/icon.png' %}">
   </head>
   <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -22,28 +23,28 @@
               <a class="nav-link" href="#">最近新聞</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'stock_list' %}">最近股市</a>
+              <a class="nav-link" href="{% url 'stock_list' %}">台灣股市</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Link</a>
+              <a class="nav-link" href="#">社群討論</a>
             </li>
+            {% if user.is_authenticated %}
+              <li class="nav-item">
+                <span class="nav-link">{{ user.username }}</span>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'logout' %}">登出</a>
+              </li>
+            {% else %}
             <li class="nav-item">
-              <a class="nav-link" href="#">Link</a>
+              <a class="nav-link" href="{% url 'login' %}">登入</a>
             </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
-              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item" href="#">Action</a>
-                <a class="dropdown-item" href="#">Another action</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="#">Something else here</a>
-              </div>
-            </li>
+            {% endif %}
           </ul>
-          <form class="form-inline my-2 my-lg-0">
-            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-light my-2 my-sm-0" type="submit">Search</button>
-          </form>
+          <form class="form-inline my-2 my-lg-0" action="{% url 'stock_search' %}" method="GET">
+            <input class="form-control mr-sm-2" type="search" placeholder="輸入股票代號或名稱" aria-label="Search" name="keyword">
+            <button class="btn btn-outline-light my-2 my-sm-0" type="submit">搜尋</button>
+        </form>
         </div>
       </div>
     </nav>
@@ -54,7 +55,10 @@
       <div class="container">
         <div class="row">
           <div class="col-12">
-            <p>Copyright © MyWebsite. All rights reserved.</p>
+            <p class="text-muted" style="font-size: 0.75rem;">
+              資訊來源：臺灣證券交易所 TWSE、財團法人中華民國證券櫃檯買賣中心 GTSM、Yahoo奇摩股市。
+              <br>本網站提供之資料僅供參考，對資訊正確、延遲或傳輸中斷不負任何責任，如使用者依本資料交易發生損失需自行負責。
+            </p>
           </div>
         </div>
       </div>
@@ -62,7 +66,8 @@
     <script src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
     <script src="{% static 'js/popper.min.js' %}"></script>
     <script src="{% static 'js/bootstrap-4.3.1.js' %}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
+    <script src='https://cdn.plot.ly/plotly-2.31.1.min.js'></script>
+	  <script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js'></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
   </body>
 </html>

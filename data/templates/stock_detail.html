@@ -5,44 +5,146 @@
     <h2 class="text-center"><strong>{{ stock.stock_name }}</strong></h2>
     <hr>
     <div class="container">
-        <div class="row">
-          <div style="width: 800px; margin: 0 auto;">
-            {{ line_chart.as_html }}
+      <div class="row">
+          <div class="col-md-12 stock_block">
+              <ul class="nav nav-tabs anchor-nav" id="myTab" role="tablist">
+                  <li class="nav-item" role="presentation">
+                      <button class="nav-link active anchor" id="green-a-tab" data-bs-toggle="tab" data-bs-target="#green-a-tab-pane" type="button" role="tab" aria-controls="green-a-tab-pane" aria-selected="true">
+                        <a class="btn-link" href="{% url 'stock_detail' stock_code=stock.stock_code %}">個股概況</a>
+                      </button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                      <button class="nav-link anchor" id="green-b-tab" data-bs-toggle="tab" data-bs-target="#green-b-tab-pane" type="button" role="tab" aria-controls="green-b-tab-pane" aria-selected="false">
+                        <a class="btn-link" type="button" href="{% url 'technical_analysis' stock_code=stock.stock_code %}">技術分析</a>
+                      </button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                      <button class="nav-link anchor" id="green-c-tab" data-bs-toggle="tab" data-bs-target="#green-c-tab-pane" type="button" role="tab" aria-controls="green-c-tab-pane" aria-selected="false">
+                        <a class="btn-link" href="{% url 'stock_dividend' stock_code=stock.stock_code %}">股利分配</a>
+                      </button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                      <button class="nav-link anchor" id="green-d-tab" data-bs-toggle="tab" data-bs-target="#green-d-tab-pane" type="button" role="tab" aria-controls="green-d-tab-pane" aria-selected="false">
+                        <a class="btn-link" href="{% url 'stock_holder' stock_code=stock.stock_code %}">持股分析</a>
+                      </button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                      <button class="nav-link anchor" id="green-e-tab" data-bs-toggle="tab" data-bs-target="#green-e-tab-pane" type="button" role="tab" aria-controls="green-e-tab-pane" aria-selected="false">
+                        <a class="btn-link" href="#">新聞</a>
+                      </button>
+                  </li>
+              </ul>
           </div>
-        </div>
-        <div class="row text-center">
-          <table class="table table-striped table-hover">
-            <thead>
-              <tr>
-                <th scope="col">證券名稱</th>
-                <th scope="col">證券號碼</th>
-                <th scope="col">開盤價</th>
-                <th scope="col">最高價</th>
-                <th scope="col">最低價</th>
-                <th scope="col">收盤價</th>
-                <th scope="col">漲跌(+/-)</th>
-                <th scope="col">漲跌價差</th>
-                <th scope="col">成交股數</th>
-                <th scope="col">成交金額</th>
-                <th scope="col">日期</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope="row"></th>
-                <td>{{ stock.stock_code }}</td>
-                <td>{{ stock.open_price }}</td>
-                <td>{{ stock.high_price }}</td>
-                <td>{{ stock.low_price }}</td>
-                <td>{{ stock.close_price }}</td>
-                <td>{{ stock.pos_neg }}</td>
-                <td>{{ stock.change_percent }}</td>
-                <td>{{ stock.total_volume }}</td>
-                <td>{{ stock.total_value }}</td>
-                <td>{{ stock.date }}</td>
-              </tr>
-          </tbody>
-        </table>
-        </div>
+      </div>
+      <div class="row">
+          <div class="col-md-12 stock_block">
+              <div class="tab-content">
+                  <div class="tab-pane fade show active">
+                    <div class="row align-items-center">
+                      <div class="col-lg-7">
+                        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+                        <script>
+                          function removeNullValues(data, timestamps) {
+                              for (var i = data.length - 1; i >= 0; i--) {
+                                  if (data[i] === null) {
+                                      data.splice(i, 1);
+                                      timestamps.splice(i, 1);
+                                  }
+                              }
+                              return { data: data, timestamps: timestamps };
+                          }
+                          function updateStockData() {
+                              $.ajax({
+                                  url: '/api/proxy_get_stock_info/{{ stock_code }}/',
+                                  type: 'GET',
+                                  success: function(response) {
+                                    var price = response.data[0].chart.indicators.quote[0].close;
+                                    var timestamps = response.data[0].chart.timestamp;
+
+                                    var result = removeNullValues(price, timestamps);
+                                    price = result.data;
+                                    timestamps = result.timestamps;
+
+                                    Plotly.react('stock-chart', {
+                                        data: [{
+                                            x: timestamps.map(timestamp => new Date(timestamp * 1000)),
+                                            y: price,
+                                            type: 'scatter',
+                                            mode: 'lines+markers'
+                                        }],
+                                        layout: {
+                                            title: '{{ stock.stock_code }}即時行情',
+                                            xaxis: {
+                                                title: '{{ stock.date }}'
+                                            },
+                                            yaxis: {
+                                                title: '價格'
+                                            }
+                                        }
+                                    });
+                                },
+                                  error: function(error) {
+                                      console.log(error);
+                                  }
+                              });
+                          }
+                          function week(){
+                            var currentDate = new Date();
+                            var currentDay = currentDate.getDay(); // 得到今天星期幾
+                            var currentHour = currentDate.getHours(); // 得到現在時間的小時
+                            var currentMinute = currentDate.getMinutes(); // 得到現在時間的分鐘
+                            if (currentDay >= 1 && currentDay <= 5 && currentHour >= 9 && (currentHour < 13 || (currentHour === 13 && currentMinute <= 30))) {
+                              updateStockData();
+                              setInterval(updateStockData, 60000);
+                            }else{
+                              updateStockData();
+                            }
+                          }
+                          week();
+                          </script>
+                        <div id="stock-chart"></div>
+                      </div>
+                      <div class="col-lg-5">
+                        <table class="table table-striped table-hover text-center">
+                          <thead>
+                            <tr>
+                              <th scope="col" colspan="4">資料時間{{ stock.date }}</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>成交</td>
+                              <td>{{ stock.close_price }}</td>
+                              <td>昨收</td>
+                              <td>{{ yesterday_stock.close_price }}</td>
+                            </tr>
+                            <tr>
+                              <td>開盤</td>
+                              <td>{{ stock.open_price }}</td>
+                              <td>漲跌</td>
+                              <td>{{ stock.pos_neg }}{{ stock.change_percent }}</td>
+                            </tr>
+                            <tr>
+                              <td>最高</td>
+                              <td>{{ stock.high_price }}</td>
+                              <td>成交股數</td>
+                              <td>{{ stock.total_volume }}</td>
+                            </tr>
+                            <tr>
+                              <td>最低</td>
+                              <td>{{ stock.low_price }}</td>
+                              <td>成交金額</td>
+                              <td>{{ stock.total_value }}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
     </div>
 {% endblock %}

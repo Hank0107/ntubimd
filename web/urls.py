@@ -20,7 +20,18 @@ from data import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('introduce', views.introduce, name='introduce'),
+    path("", views.introduce, name='introduce'),
     path('stock_list', views.stock_list, name='stock_list'),
-    path('stock_detail/<str:stock_code>/', views.stock_detail, name='stock_detail'),
+    path('stock_detail/<str:stock_code>', views.stock_detail, name='stock_detail'),
+    path('stock_detail/<str:stock_code>/technical_analysis', views.technical_analysis, name='technical_analysis'),
+    path('stock_detail/<str:stock_code>/stock_dividend', views.stock_dividend, name='stock_dividend'),
+    path('stock_detail/<str:stock_code>/stock_holder', views.stock_holder, name='stock_holder'),
+    path('stock_search/', views.stock_search, name='stock_search'),
+    path('empty_page/', views.empty_page, name='empty_page'),
+    path('register/', views.register, name='register'),
+    path('login/', views.user_login, name='login'),
+    path('logout/', views.user_logout, name='logout'),
+    path('forgot-password/', views.forgot_password, name='forgot_password'),
+    path('reset-password/<uidb64>/<token>/', views.CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('api/proxy_get_stock_info/<str:stock_code>/', views.proxy_get_stock_info, name='proxy_get_stock_info'),
 ]
