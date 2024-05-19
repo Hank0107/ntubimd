@@ -1,0 +1,886 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% csrf_token %}
+
+<script>
+    function trackClick(newsUrl) {
+        fetch(`/track_url_click/?url=${encodeURIComponent(newsUrl)}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.status !== 'success') {
+                    console.error('Failed to track URL click');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const searchInputCode = document.getElementById('searchInputCode');
+        const themeSelectCode = document.getElementById('themeSelectCode');
+        const searchInputName = document.getElementById('searchInputName');
+        const themeSelectName = document.getElementById('themeSelectName');
+        const searchInputTheme = document.getElementById('searchInputTheme');
+        const themeSelectTheme = document.getElementById('themeSelectTheme');
+        const selectedThemes = document.getElementById('selectedThemes').getElementsByTagName('td');
+    
+        // 监听搜索输入框的输入事件
+        searchInputCode.addEventListener('input', function() {
+            filterDropdownOptions(searchInputCode.value.toLowerCase(), themeSelectCode);
+        });
+    
+        searchInputName.addEventListener('input', function() {
+            filterDropdownOptions(searchInputName.value.toLowerCase(), themeSelectName);
+        });
+    
+        searchInputTheme.addEventListener('input', function() {
+            filterDropdownOptions(searchInputTheme.value.toLowerCase(), themeSelectTheme);
+        });
+    
+        // 监听下拉菜单的变化事件
+        themeSelectCode.addEventListener('change', function() {
+            handleThemeSelection(themeSelectCode);
+        });
+    
+        themeSelectName.addEventListener('change', function() {
+            handleThemeSelection(themeSelectName);
+        });
+    
+        themeSelectTheme.addEventListener('change', function() {
+            handleThemeSelection(themeSelectTheme);
+        });
+    
+        // 函数：根据搜索关键字过滤下拉菜单选项
+        function filterDropdownOptions(query, selectElement) {
+            const options = selectElement.options;
+            for (let i = 0; i < options.length; i++) {
+                const optionText = options[i].text.toLowerCase();
+                if (optionText.includes(query)) {
+                    options[i].style.display = '';
+                } else {
+                    options[i].style.display = 'none';
+                }
+            }
+        }
+    
+        // 函数：处理主题选择
+        function handleThemeSelection(selectElement) {
+            const selectedTheme = selectElement.value;
+            const selectedThemeText = selectElement.options[selectElement.selectedIndex].text;
+    
+            if (selectedTheme !== '選擇ETF代碼' && selectedTheme !== '選擇ETF名稱' && selectedTheme !== '選擇熱門主題') {
+                addThemeToTable(selectedThemeText);
+                selectElement.value = selectElement.options[0].value;  // 重置下拉菜单
+            }
+        }
+    
+        // 函数：将选择的主题添加到表格中
+        function addThemeToTable(theme) {
+            let emptyCell = null;
+            let themeExists = false;
+
+            // 查找空白单元格
+            for (let i = 0; i < selectedThemes.length; i++) {
+                if (selectedThemes[i].innerText === '') {
+                    emptyCell = selectedThemes[i];
+                    break;
+                }
+            }
+
+            // 检查是否存在相同主题
+            for (let i = 0; i < selectedThemes.length; i++) {
+                if (selectedThemes[i].innerText.includes(theme)) {
+                    selectedThemes[i].querySelector('button').click(); // 点击取消按钮
+                    themeExists = true;
+                    break;
+                }
+            }
+
+            // 如果有空白单元格且没有重复主题，则添加主题
+            if (emptyCell && !themeExists) {
+                emptyCell.innerHTML = theme + ' <button class="btn btn-danger btn-sm" onclick="removeTheme(this)">x</button>';
+            } else if (!emptyCell && !themeExists) {
+                console.log('表格已满，无法添加主题。');
+            }
+        }
+
+    
+        // 函数：移除选择的主题并重新排列表格内容
+        window.removeTheme = function(button) {
+            const td = button.closest('td');
+            if (td.querySelector('button')) {
+                td.innerHTML = '';
+                rearrangeTable();
+            }
+        }
+    
+        // 函数：重新排列表格内容
+        function rearrangeTable() {
+            const themes = [];
+            for (let i = 0; i < selectedThemes.length; i++) {
+                const btn = selectedThemes[i].querySelector('button');
+                if (btn) {
+                    themes.push(selectedThemes[i].innerText.replace(btn.innerText, '').trim()); // 只获取主题名称
+                    selectedThemes[i].innerHTML = ''; // 清空单元格
+                }
+            }
+            // 重新填充表格
+            for (let i = 0; i < themes.length; i++) {
+                selectedThemes[i].innerHTML = themes[i] + ' <button class="btn btn-danger btn-sm" onclick="removeTheme(this)">x</button>';
+            }
+        }
+    });
+    </script>
+    
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            console.log("Document is ready.");
+    
+            // 加载用户主题
+            function loadUserThemes() {
+                $.ajax({
+                    type: 'GET',
+                    url: '/get-user-themes/',
+                    success: function(response) {
+                        console.log("Server response:", response);
+                        if (response.status === 'success') {
+                            let themes = response.themes;
+                            $('#selectedThemes td').each(function(index) {
+                                if (themes[index]) {
+                                    $(this).html(themes[index] + ' <button type="button" class="btn btn-danger btn-sm remove-btn">x</button>');
+                                } else {
+                                    $(this).empty();
+                                }
+                            });
+                        }
+                    },
+                    error: function(response) {
+                        console.log("Error response:", response);
+                        alert('加载用户主题时发生错误');
+                    }
+                });
+            }
+    
+            // 打开模态框时加载用户主题
+            $('#staticBackdrop').on('show.bs.modal', function (e) {
+                loadUserThemes();
+            });
+    
+            $('#saveButton').click(function() {
+                console.log("Save button clicked.");
+    
+                let selectedThemes = [];
+                $('#selectedThemes td').each(function() {
+                    let theme = $(this).contents().filter(function() {
+                        return this.nodeType === Node.TEXT_NODE;
+                    }).text().trim();
+                    if (theme) {
+                        selectedThemes.push(theme);
+                    }
+                });
+    
+                console.log("Selected themes:", selectedThemes);
+    
+                $.ajax({
+                    type: 'POST',
+                    url: '/save-themes/',
+                    data: JSON.stringify(selectedThemes),
+                    contentType: 'application/json',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'  // 确保CSRF令牌正确
+                    },
+                    success: function(response) {
+                        console.log("Server response:", response);
+                        alert('主題已成功保存');
+                        location.reload();
+                    },
+                    error: function(response) {
+                        console.log("Error response:", response);
+                        alert('保存過程中發生錯誤');
+                    }
+                });
+            });
+    
+            // 删除按钮的事件绑定
+            $(document).on('click', '.remove-btn', function() {
+                $(this).parent().empty();
+                updateThemeTable();
+            });
+    
+            function updateThemeTable() {
+                let themes = [];
+                $('#selectedThemes td').each(function() {
+                    let theme = $(this).contents().filter(function() {
+                        return this.nodeType === Node.TEXT_NODE;
+                    }).text().trim();
+                    if (theme) {
+                        themes.push(theme);
+                    }
+                });
+    
+                $('#selectedThemes td').empty(); // 清空表格
+    
+                for (let i = 0; i < themes.length; i++) {
+                    $('#selectedThemes td').eq(i).html(themes[i] + ' <button type="button" class="btn btn-danger btn-sm remove-btn">x</button>');
+                }
+            }
+        });
+    </script>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+<hr>
+
+<form class="form-inline my-2 my-lg-0 formcenter" action="{% url 'news_search' %}" method="GET">
+    <input class="form-control mr-sm-2 formcenter1" type="search" placeholder="輸入欲查詢新聞" aria-label="Search" name="keyword">
+    <button class="btn btn-outline-light my-2 my-sm-0 formcenter2" type="submit">搜尋</button>
+</form>
+
+<hr>
+
+<div class="container-fluid">
+
+    <div class="row">
+
+        <div class="col-lg-2"></div>
+
+        <div class="col-lg-4">
+            <ul>
+                <h3><a href="{% url 'news_list1' %}" target="_blank" class="news-title">熱門新聞</a></h3>
+                {% for single_news in news_list1|slice:"5" %}
+                <li class="ul-hover ul-a ul-b">
+
+                    <div class="row">
+
+                        <div class="col-lg-4">
+                            <img src="{{ single_news.image_url }}" alt="News Image" width="100%" height="100%">
+                        </div>
+                                                   
+                        <div class="col-lg-8">                           
+                            <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
+                                <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                        </div> 
+
+                    </div>
+
+                </li>              
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="col-lg-4">
+            <ul>
+                <h3><a href="{% url 'news_list2' %}" target="_blank" class="news-title">最新新聞</a></h3>
+                {% for single_news in news_list2|slice:"5" %}
+                <li class="ul-hover ul-a ul-b">
+
+                    <div class="row">
+
+                        <div class="col-lg-4">
+                            <img src="{{ single_news.image_url }}" alt="News Image" width="100%" height="100%">
+                        </div>
+                                                
+                        <div class="col-lg-8">
+                            <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
+                                <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                        </div> 
+
+                    </div>
+
+                </li>     
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="col-lg-2"></div>
+
+    </div>
+
+    <hr>
+
+    {% if user.is_authenticated %}
+
+    <div class="row">
+
+        <div class="col-lg-2"></div>
+
+        <div class="col-lg-8">
+            <h3 class="clearfix">
+                <a target="_blank" class="news-title float-left">推薦新聞</a>
+            </h3>
+        
+            <div class="row">
+                <ul>
+                    {% for single_news in news|slice:"6" %}
+                        {% if not forloop.counter|divisibleby:"2" %}
+                            <li class="ul-hover ul-a ul-b">
+
+                                <div class="row">
+
+                                    <div class="col-lg-6">
+
+                                        <div class="row">
+
+                                            <div class="col-lg-4">
+                                                <img src="{{ single_news.image_url }}" alt="News Image" class="img-fluid">
+                                            </div>
+
+                                            <div class="col-lg-8">
+                                                <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                                <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
+                                                <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                            </div>
+
+                                        </div>
+
+                                    </div> 
+                        {% else %}
+                                    <div class="col-lg-6">
+
+                                        <div class="row">
+
+                                            <div class="col-lg-4">
+                                                <img src="{{ single_news.image_url }}" alt="News Image" class="img-fluid">
+                                            </div>
+
+                                            <div class="col-lg-8">
+                                                <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                                <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
+                                                <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                            </div> 
+
+                                        </div>
+
+                                    </div> 
+
+                                </div>
+                            </li>                    
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+
+        </div>
+
+        <div class="col-lg-2"></div>
+        
+    </div>
+    
+    <hr>
+
+    <div class="row">
+
+        <div class="col-lg-1"></div>
+
+        <div class="col-lg-10">
+            <ul>
+                <h3>
+                    <a target="_blank" class="news-title">主題新聞</a>
+                    <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-primary float-right" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                        自訂
+                    </button>
+                </h3>
+                
+                <!-- Modal -->
+                <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="staticBackdropLabel">自訂主題</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-lg-1"></div>
+                                    <div class="col-lg-7">  
+                                        <div class="row mt-1">
+                                            <div class="row">
+                                                <!-- ETF代碼 -->
+                                                <div class="col-lg-12"> 
+                                                    <div>ETF代碼</div>
+                                                </div>
+                                                <div class="col-lg-12"> 
+                                                    <input type="text" id="searchInputCode" placeholder="搜尋ETF代碼">
+                                                </div>
+                                                <div class="col-lg-12"> 
+                                                    <select id="themeSelectCode">
+                                                        <option>選擇ETF代碼</option>
+                                                        <option value="code1">0050</option>
+                                                        <option value="code2">0056</option>
+                                                        <option value="code3">006208</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-3">
+                                            <div class="row">
+                                                <!-- ETF名稱 -->
+                                                <div class="col-lg-12"> 
+                                                    <div>ETF名稱</div>
+                                                </div>
+                                                <div class="col-lg-12"> 
+                                                    <input type="text" id="searchInputName" placeholder="搜尋ETF名稱">
+                                                </div>
+                                                <div class="col-lg-12"> 
+                                                    <select id="themeSelectName">
+                                                        <option>選擇ETF名稱</option>
+                                                        <option value="name1">名稱1</option>
+                                                        <option value="name2">名稱2</option>
+                                                        <option value="name3">名稱3</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-3">
+                                            <div class="row">
+                                                <!-- 熱門主題 -->
+                                                <div class="col-lg-12"> 
+                                                    <div>熱門主題</div>
+                                                </div>
+                                                <div class="col-lg-12">   
+                                                    <input type="text" id="searchInputTheme" placeholder="搜尋熱門主題">
+                                                </div>
+                                                <div class="col-lg-12"> 
+                                                    <select id="themeSelectTheme">
+                                                        <option>選擇熱門主題</option>
+                                                        <option value="theme1">鴻海</option>
+                                                        <option value="theme2">ETF</option>
+                                                        <option value="theme3">台積電</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4"> 
+                                        <div class="row mt-3">
+                                            <div class="col-lg-12">
+                                                <table class="table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>選擇的主題</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td><table class="table table-bordered"><tbody id="selectedThemes">
+                                                                <tr><td></td></tr>
+                                                                <tr><td></td></tr>
+                                                                <tr><td></td></tr>
+                                                                <tr><td></td></tr>
+                                                                <tr><td></td></tr>
+                                                                <tr><td></td></tr>
+                                                            </tbody></table></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                <button type="button" class="btn btn-primary" id="saveButton">儲存並退出</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="container-fluid">
+                    <div class="row">
+                        {% if theme_count == 0 %}
+                        {% elif theme_count == 1 %}
+                            {% for theme, news_list in news_by_theme.items %}
+                                <div class="col-lg-12">
+                                    <a href="{% url 'news_theme' search_key=theme %}" target="_blank" class="news-title">{{ theme }}</a>
+                                    {% for single_news in news_list|slice:"6" %}
+                                        {% if not forloop.counter|divisibleby:"2" %}
+                                            <li class="ul-hover ul-a ul-b">
+                                                <div class="row">
+                                                    <div class="col-lg-6">
+                                                        <div class="row">
+                                                            <div class="col-lg-4">
+                                                                <img src="{{ single_news.image_url }}" alt="News Image" class="img-fluid">
+                                                            </div>
+                                                            <div class="col-lg-8">
+                                                                <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                                                <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
+                                                                <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                        {% else %}
+                                                    <div class="col-lg-6">
+                                                        <div class="row">
+                                                            <div class="col-lg-4">
+                                                                <img src="{{ single_news.image_url }}" alt="News Image" class="img-fluid">
+                                                            </div>
+                                                            <div class="col-lg-8">
+                                                                <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                                                <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
+                                                                <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+                        {% elif theme_count == 2 %}
+                            {% for theme, news_list in news_by_theme.items %}
+                                <div class="col-lg-6">
+                                    <a href="{% url 'news_theme' search_key=theme %}" target="_blank" class="news-title">{{ theme }}</a>
+                                    {% for single_news in news_list|slice:"3" %}
+                                        <li class="ul-hover ul-a ul-b">
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="row">
+                                                        <div class="col-lg-4">
+                                                            <img src="{{ single_news.image_url }}" alt="News Image" class="img-fluid">
+                                                        </div>
+                                                        <div class="col-lg-8">
+                                                            <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                                            <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
+                                                            <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+                        {% elif theme_count == 3 %}
+                            {% for theme, news_list in news_by_theme.items %}
+                                <div class="col-lg-4">
+                                    <a href="{% url 'news_theme' search_key=theme %}" target="_blank" class="news-title">{{ theme }}</a>
+                                    {% for single_news in news_list|slice:"3" %}
+                                        <li class="ul-hover ul-a ul-b">
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="row">
+                                                        <div class="col-lg-4">
+                                                            <img src="{{ single_news.image_url }}" alt="News Image" class="img-fluid">
+                                                        </div>
+                                                        <div class="col-lg-8">
+                                                            <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                                            <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
+                                                            <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+                        {% elif theme_count == 4 %}
+                            {% for theme, news_list in news_by_theme.items %}
+                                <div class="col-lg-6">
+                                    <a href="{% url 'news_theme' search_key=theme %}" target="_blank" class="news-title">{{ theme }}</a>
+                                    {% for single_news in news_list|slice:"3" %}
+                                        <li class="ul-hover ul-a ul-b">
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="row">
+                                                        <div class="col-lg-4">
+                                                            <img src="{{ single_news.image_url }}" alt="News Image" class="img-fluid">
+                                                        </div>
+                                                        <div class="col-lg-8">
+                                                            <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                                            <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
+                                                            <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+                        {% elif theme_count == 5 %}
+                            {% for theme, news_list in news_by_theme.items %}
+                                <div class="col-lg-4">
+                                    <a href="{% url 'news_theme' search_key=theme %}" target="_blank" class="news-title">{{ theme }}</a>
+                                    {% for single_news in news_list|slice:"3" %}
+                                        <li class="ul-hover ul-a ul-b">
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="row">
+                                                        <div class="col-lg-4">
+                                                            <img src="{{ single_news.image_url }}" alt="News Image" class="img-fluid">
+                                                        </div>
+                                                        <div class="col-lg-8">
+                                                            <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                                            <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
+                                                            <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+                        {% elif theme_count == 6 %}
+                            {% for theme, news_list in news_by_theme.items %}
+                                <div class="col-lg-4">
+                                    <a href="{% url 'news_theme' search_key=theme %}" target="_blank" class="news-title">{{ theme }}</a>
+                                    {% for single_news in news_list|slice:"3" %}
+                                        <li class="ul-hover ul-a ul-b">
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="row">
+                                                        <div class="col-lg-4">
+                                                            <img src="{{ single_news.image_url }}" alt="News Image" class="img-fluid">
+                                                        </div>
+                                                        <div class="col-lg-8">
+                                                            <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                                            <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
+                                                            <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+                
+                
+
+            </ul>
+        </div>
+
+
+
+    </div>
+
+    {% else %}
+        <div class="row">
+
+            <div class="col-lg-2"></div>
+
+            <div class="col-lg-8">
+                <h3 class="clearfix">
+                    <a target="_blank" class="news-title float-left">更多新聞</a>
+                    <a class="btn btn-primary float-right" href="{% url 'login' %}">登入</a>
+                </h3>
+            
+                <div class="row">
+                    <ul>
+                        {% for single_news in news|slice:"6" %}
+                            {% if not forloop.counter|divisibleby:"2" %}
+                                <li class="ul-hover ul-a ul-b">
+
+                                    <div class="row">
+
+                                        <div class="col-lg-6">
+
+                                            <div class="row">
+
+                                                <div class="col-lg-4">
+                                                    <img src="{{ single_news.image_url }}" alt="News Image" class="img-fluid">
+                                                </div>
+
+                                                <div class="col-lg-8">
+                                                    <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                                    <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
+                                                    <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                                </div>
+
+                                            </div>
+
+                                        </div> 
+                            {% else %}
+                                        <div class="col-lg-6">
+
+                                            <div class="row">
+
+                                                <div class="col-lg-4">
+                                                    <img src="{{ single_news.image_url }}" alt="News Image" class="img-fluid">
+                                                </div>
+
+                                                <div class="col-lg-8">
+                                                    <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                                    <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
+                                                    <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                                </div> 
+
+                                            </div>
+
+                                        </div> 
+
+                                    </div>
+                                </li>                    
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+
+            </div>
+
+            <div class="col-lg-2"></div>
+            
+        </div>
+        
+        <hr>
+
+        <div class="row">
+
+            <div class="col-lg-1"></div>
+
+            <div class="col-lg-10">
+                <ul>
+                    <h3>
+                        <a target="_blank" class="news-title">主題新聞</a>
+                        <a class="btn btn-primary float-right" href="{% url 'login' %}">自訂</a>
+                    </h3>
+
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <a href="{% url 'news_theme' search_key='ETF' %}" target="_blank" class="news-title">ETF</a>
+                            {% for single_news in news_theme1 %}
+                                <li class="ul-hover ul-a ul-b">
+                                    <div class="row">
+                                        <div class="col-lg-4">
+                                            <img src="{{ single_news.image_url }}" alt="News Image" width="100%" height="100%">
+                                        </div>
+                                        <div class="col-lg-8">      
+                                            <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                            <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
+                                            <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                        </div> 
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </div>
+
+                        <div class="col-lg-4">
+                            <a href="{% url 'news_theme' search_key='台積電' %}" target="_blank" class="news-title">台積電</a>
+                            {% for single_news in news_theme2 %}
+                                <li class="ul-hover ul-a ul-b">
+                                    <div class="row">
+                                        <div class="col-lg-4">
+                                            <img src="{{ single_news.image_url }}" alt="News Image" width="100%" height="100%">
+                                        </div>
+                                        <div class="col-lg-8">      
+                                            <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                            <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
+                                            <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                        </div> 
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </div>
+
+                        <div class="col-lg-4">
+                            <a href="{% url 'news_theme' search_key='鴻海' %}" target="_blank" class="news-title">鴻海</a>
+                            {% for single_news in news_theme3 %}
+                                <li class="ul-hover ul-a ul-b">
+                                    <div class="row">
+                                        <div class="col-lg-4">
+                                            <img src="{{ single_news.image_url }}" alt="News Image" width="100%" height="100%">
+                                        </div>
+                                        <div class="col-lg-8">      
+                                            <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                            <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
+                                            <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                        </div> 
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </div>
+                        
+                    </div>
+
+                </ul>
+                <ul>
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <a href="{% url 'news_theme' search_key='Yahoo奇摩' %}" target="_blank" class="news-title">Yahoo奇摩</a>
+                            {% for single_news in news_theme4 %}
+                                <li class="ul-hover ul-a ul-b">
+                                    <div class="row">
+                                        <div class="col-lg-4">
+                                            <img src="{{ single_news.image_url }}" alt="News Image" width="100%" height="100%">
+                                        </div>
+                                        <div class="col-lg-8">      
+                                            <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                            <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
+                                            <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                        </div> 
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </div>
+
+                        <div class="col-lg-4">
+                            <a href="{% url 'news_theme' search_key='財經' %}" target="_blank" class="news-title">財經</a>
+                            {% for single_news in news_theme5 %}
+                                <li class="ul-hover ul-a ul-b">
+                                    <div class="row">
+                                        <div class="col-lg-4">
+                                            <img src="{{ single_news.image_url }}" alt="News Image" width="100%" height="100%">
+                                        </div>
+                                        <div class="col-lg-8">      
+                                            <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                            <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
+                                            <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                        </div> 
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </div>
+
+                        <div class="col-lg-4">
+                            <a href="{% url 'news_theme' search_key='0050' %}" target="_blank" class="news-title">0050</a>
+                            {% for single_news in news_theme6 %}
+                                <li class="ul-hover ul-a ul-b">
+                                    <div class="row">
+                                        <div class="col-lg-4">
+                                            <img src="{{ single_news.image_url }}" alt="News Image" width="100%" height="100%">
+                                        </div>
+                                        <div class="col-lg-8">      
+                                            <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                            <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
+                                            <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                        </div> 
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                </ul>
+            </div>
+
+
+
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
