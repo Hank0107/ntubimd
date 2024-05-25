@@ -1,53 +1,229 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-    <hr>
-    <h2 class="text-center"><strong>{{ stock.stock_name }}</strong></h2>
-    <hr>
-    <div class="container">
-      <div class="row">
-          <div class="col-md-12 stock_block">
-              <ul class="nav nav-tabs anchor-nav" id="myTab" role="tablist">
-                  <li class="nav-item" role="presentation">
-                      <button class="nav-link anchor" id="green-a-tab" data-bs-toggle="tab" data-bs-target="#green-a-tab-pane" type="button" role="tab" aria-controls="green-a-tab-pane" aria-selected="true">
-                        <a class="btn-link" href="{% url 'stock_detail' stock_code=stock.stock_code %}">個股概況</a>
-                      </button>
-                  </li>
-                  <li class="nav-item" role="presentation">
-                      <button class="nav-link active anchor" id="green-b-tab" data-bs-toggle="tab" data-bs-target="#green-b-tab-pane" type="button" role="tab" aria-controls="green-b-tab-pane" aria-selected="false">
-                        <a class="btn-link" type="button" href="{% url 'technical_analysis' stock_code=stock.stock_code %}">技術分析</a>
-                      </button>
-                  </li>
-                  <li class="nav-item" role="presentation">
-                      <button class="nav-link anchor" id="green-c-tab" data-bs-toggle="tab" data-bs-target="#green-c-tab-pane" type="button" role="tab" aria-controls="green-c-tab-pane" aria-selected="false">
-                        <a class="btn-link" href="{% url 'stock_dividend' stock_code=stock.stock_code %}">股利分配</a>
-                      </button>
-                  </li>
-                  <li class="nav-item" role="presentation">
-                      <button class="nav-link anchor" id="green-d-tab" data-bs-toggle="tab" data-bs-target="#green-d-tab-pane" type="button" role="tab" aria-controls="green-d-tab-pane" aria-selected="false">
-                        <a class="btn-link" href="{% url 'stock_holder' stock_code=stock.stock_code %}">持股分析</a>
-                      </button>
-                  </li>
-                  <li class="nav-item" role="presentation">
-                      <button class="nav-link anchor" id="green-e-tab" data-bs-toggle="tab" data-bs-target="#green-e-tab-pane" type="button" role="tab" aria-controls="green-e-tab-pane" aria-selected="false">
-                        <a class="btn-link" href="#">新聞</a>
-                      </button>
-                  </li>
-              </ul>
-          </div>
-      </div>
-      <div class="row">
-          <div class="col-md-12 stock_block">
-              <div class="tab-content">
-                  <div class="tab-pane fade show active">
-                    <div class="row align-items-center">
-                      <div class="col-lg-12">{{ plot_stock_price|safe }}</div>
+{% include 'stock_detail_base.html' %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12 stock_block">
+            <div class="tab-content">
+                <div class="tab-pane fade show active">
+                <div class="row align-items-center">
+                    <div class="col-lg-12">
+                        <select class="form-select" id="timeframe">
+                            <option value="daily">日線</option>
+                            <option value="weekly">週線</option>
+                            <option value="monthly">月線</option>
+                        </select>
+                        <button class="btn btn_update" onclick="updateChart()">更新圖表</button>
+                        </div>
+                        <div class="col-lg-12">
+                        <div id="chart"></div>
+                        <script>
+                            function calculateMovingAverage(data, windowSize) {
+                                const movingAverage = [];
+                                for (let i = 0; i < data.length; i++) {
+                                    if (i >= windowSize - 1) {
+                                        let sum = 0;
+                                        for (let j = i; j > i - windowSize; j--) {
+                                            sum += data[j].close_price;
+                                        }
+                                        movingAverage.push(sum / windowSize);
+                                    } else {
+                                        movingAverage.push(null);
+                                    }
+                                }
+                                return movingAverage;
+                            }
+                        
+                            function updateChart() {
+                                var timeframe = document.getElementById('timeframe').value;
+                                var stockCode = '{{ stock_code }}';
+                                fetch(`/stock_detail/${stockCode}/technical_analysis?timeframe=${timeframe}`, {
+                                    headers: {
+                                        'X-Requested-With': 'XMLHttpRequest'
+                                    }
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    // Filter data based on timeframe
+                                    var filteredData;
+                                    var now = new Date();
+                                    if (timeframe === 'daily') {
+                                        filteredData = data.filter(item => new Date(item.date) >= new Date(now.getFullYear(), now.getMonth() - 6, now.getDate()));
+                                    } else if (timeframe === 'weekly') {
+                                        filteredData = data.filter(item => new Date(item.date) >= new Date(now.getFullYear() - 5, now.getMonth(), now.getDate()));
+                                    } else {
+                                        filteredData = data;
+                                    }
+                        
+                                    filteredData.forEach(item => {
+                                        item.date = new Date(item.date);
+                                    });
+                        
+                                    var candlestick = {
+                                        x: filteredData.map(item => item.date),
+                                        open: filteredData.map(item => item.open_price),
+                                        high: filteredData.map(item => item.high_price),
+                                        low: filteredData.map(item => item.low_price),
+                                        close: filteredData.map(item => item.close_price),
+                                        increasing: {line: {color: 'red'}},
+                                        decreasing: {line: {color: 'green'}},
+                                        type: 'candlestick',
+                                        name: 'Candlestick',
+                                        yaxis: 'y1'
+                                    };
+                                    var ma5 = {
+                                        x: filteredData.map(item => item.date),
+                                        y: calculateMovingAverage(filteredData, 5),
+                                        type: 'scatter',
+                                        mode: 'lines',
+                                        line: { color: 'blue' },
+                                        name: 'MA5'
+                                    };
+                        
+                                    var ma20 = {
+                                        x: filteredData.map(item => item.date),
+                                        y: calculateMovingAverage(filteredData, 20),
+                                        type: 'scatter',
+                                        mode: 'lines',
+                                        line: { color: 'green' },
+                                        name: 'MA20'
+                                    };
+                        
+                                    var ma60 = {
+                                        x: filteredData.map(item => item.date),
+                                        y: calculateMovingAverage(filteredData, 60),
+                                        type: 'scatter',
+                                        mode: 'lines',
+                                        line: { color: 'red' },
+                                        name: 'MA60'
+                                    };
+
+                                    var volumeColors = filteredData.map((item, index) => {
+                                        if (index === 0 || item.close_price >= filteredData[index - 1].close_price) {
+                                            return 'rgba(255, 0, 0, 0.6)'; // Red for increase
+                                        } else {
+                                            return 'rgba(0, 128, 0, 0.6)'; // Green for decrease
+                                        }
+                                    });
+                                    var volume = {
+                                        x: filteredData.map(item => item.date),
+                                        y: filteredData.map(item => item.total_volume),
+                                        type: 'bar',
+                                        marker: { color: volumeColors },
+                                        name: 'Volume',
+                                        yaxis: 'y2'
+                                    };
+                                    var layout = {
+                                        title: '{{ stock.stock_name }}({{ stock_code }})',
+                                        xaxis: {
+                                            rangeselector: {
+                                                buttons: []
+                                            },
+                                            rangeslider: { visible: true },
+                                            title: 'Date'
+                                        },
+                                        yaxis: {
+                                            title: 'Price',
+                                            domain: [0, 0.8]
+                                        },
+                                        yaxis2: {
+                                            title: 'Volume',
+                                            overlaying: 'y',
+                                            side: 'right',
+                                            showgrid: false,
+                                            domain: [0.85, 1]
+                                        },
+                                        grid: {
+                                            rows: 2,
+                                            columns: 1,
+                                            subplots: [['xy'], ['xy2']]
+                                        }
+                                    };
+
+                                    if (timeframe === 'daily') {
+                                        layout.xaxis.rangeselector.buttons = [
+                                            {
+                                                count: 2,
+                                                label: '2 months',
+                                                step: 'month',
+                                                stepmode: 'backward'
+                                            },
+                                            {
+                                                count: 3,
+                                                label: '3 months',
+                                                step: 'month',
+                                                stepmode: 'backward'
+                                            },
+                                            {
+                                                count: 6,
+                                                label: '6 months',
+                                                step: 'month',
+                                                stepmode: 'backward'
+                                            },
+                                        ];
+                                    } else if (timeframe === 'weekly') {
+                                        layout.xaxis.rangeselector.buttons = [
+                                            {
+                                                count: 1,
+                                                label: '1 year',
+                                                step: 'year',
+                                                stepmode: 'backward'
+                                            },
+                                            {
+                                                count: 3,
+                                                label: '3 years',
+                                                step: 'year',
+                                                stepmode: 'backward'
+                                            },
+                                            {
+                                                count: 5,
+                                                label: '5 years',
+                                                step: 'year',
+                                                stepmode: 'backward'
+                                            },
+                                        ];
+                                    } else if (timeframe === 'monthly') {
+                                        layout.xaxis.rangeselector.buttons = [
+                                            {
+                                                count: 2,
+                                                label: '2 years',
+                                                step: 'year',
+                                                stepmode: 'backward'
+                                            },
+                                            {
+                                                count: 5,
+                                                label: '5 years',
+                                                step: 'year',
+                                                stepmode: 'backward'
+                                            },
+                                            {
+                                                count: 10,
+                                                label: '10 years',
+                                                step: 'year',
+                                                stepmode: 'backward'
+                                            },
+                                            {
+                                                step: 'all',
+                                                label: 'All dates'
+                                            }
+                                        ];
+                                    }
+                        
+                                    Plotly.newPlot('chart', [candlestick, ma5, ma20, ma60, volume], layout);
+                                });
+                            }
+                            document.addEventListener('DOMContentLoaded', function() {
+                                updateChart();
+                            });
+                        </script>
                     </div>
-                  </div>
                 </div>
-              </div>
+                </div>
             </div>
-          </div>
-      </div>
+            </div>
+        </div>
+        </div>
     </div>
+</div>
 {% endblock %}

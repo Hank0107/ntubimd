@@ -47,3 +47,27 @@ class StockHold(models.Model):
     percentage = models.CharField(max_length=10, verbose_name="百分比")
     class Meta:
         db_table = 'stock_hold'
+
+class JuridicalData(models.Model):
+    date = models.DateField()
+    stock_code = models.CharField(max_length=10, primary_key=True)
+    stock_name = models.CharField(max_length=50)
+    foreign_investors_buy = models.IntegerField()
+    foreign_investors_sell = models.IntegerField()
+    foreign_investors_diff = models.IntegerField()
+    foreign_self_buy = models.IntegerField()
+    foreign_self_sell = models.IntegerField()
+    foreign_self_diff = models.IntegerField()
+    investment_trust_buy = models.IntegerField()
+    investment_trust_sell = models.IntegerField()
+    investment_trust_diff = models.IntegerField()
+    dealer_total_diff = models.IntegerField()
+    dealer_self_buy = models.IntegerField()
+    dealer_self_sell = models.IntegerField()
+    dealer_self_diff = models.IntegerField()
+    dealer_hedge_buy = models.IntegerField()
+    dealer_hedge_sell = models.IntegerField()
+    dealer_hedge_diff = models.IntegerField()
+    total_diff = models.IntegerField()
+    class Meta:
+        db_table = 'juridical_data'
