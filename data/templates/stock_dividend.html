@@ -34,13 +34,13 @@
                                       <td>{{ dividend.Belong }}</td>
                                       <td>{{ dividend.Cash_Dividend }}</td>
                                       <td>{{ dividend.stock_Dividend }}</td>
-                                      <td>{{ dividend.Cash_Yield }}</td>
+                                      <td>{{ dividend.Cash_Yield }}%</td>
                                       <td>{{ dividend.Ex_Date_Close }}</td>
                                       <td>{{ dividend.Ex_Dividend_Date }}</td>
                                       <td>{{ dividend.Ex_Right_Date }}</td>
                                       <td>{{ dividend.Cash_Dividend_Date }}</td>
                                       <td>{{ dividend.stock_Dividends_Date }}</td>
-                                      <td>{{ dividend.Back_To_Close_Date }}</td>
+                                      <td>{% if dividend.Distribution_Date == '' %}{{ dividend.Back_To_Close_Date }}{% endif %}</td>
                                   </tr>
                               {% endfor %}
                           </tbody>
