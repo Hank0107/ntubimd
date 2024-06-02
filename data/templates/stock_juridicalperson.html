@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% include 'stock_detail_base.html' %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-2"></div>
+        <div class="col-md-8 stock_block">
+            <div class="tab-content">
+                <div class="tab-pane fade show active">
+                    <div class="row align-items-center">
+                        <div class="col-lg-12">
+                            <div class="dropdown mt-3">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" id="timeRangeDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    選擇資料時間
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="timeRangeDropdown">
+                                    <button class="dropdown-item" onclick="updateChart('1m')">1 個月</button>
+                                    <button class="dropdown-item" onclick="updateChart('3m')">3 個月</button>
+                                    <button class="dropdown-item" onclick="updateChart('6m')">6 個月</button>
+                                    <button class="dropdown-item" onclick="updateChart('all')">全部</button>
+                                </div>
+                            </div>
+                            <div id="bar-chart"></div>
+                            <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+                            <script>
+                                var chartData = {{ chart_data|safe }};
+                                
+                                // Function to get chart data for the last 'months' months
+                                function getChartDataForLastMonths(months) {
+                                    var newData = {};
+                                    var currentDate = new Date();
+                                    var startDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - months, 1);
+                                    var filteredData = {
+                                        dates: [],
+                                        foreign: [],
+                                        investment: [],
+                                        dealer: []
+                                    };
+                                    chartData.dates.forEach(function(date, index) {
+                                        var currentDate = new Date(date);
+                                        if (currentDate >= startDate && currentDate <= currentDate) {
+                                            filteredData.dates.push(date);
+                                            filteredData.foreign.push(chartData.foreign_diff_lots[index]);
+                                            filteredData.investment.push(chartData.investment_diff_lots[index]);
+                                            filteredData.dealer.push(chartData.dealer_diff_lots[index]);
+                                        }
+                                    });
+                                    newData.data = [{
+                                        x: filteredData.dates,
+                                        y: filteredData.foreign,
+                                        name: '外資買賣超',
+                                        type: 'bar'
+                                    }, {
+                                        x: filteredData.dates,
+                                        y: filteredData.investment,
+                                        name: '投信買賣超',
+                                        type: 'bar'
+                                    }, {
+                                        x: filteredData.dates,
+                                        y: filteredData.dealer,
+                                        name: '自營商買賣超',
+                                        type: 'bar'
+                                    }];
+                                    newData.layout = {
+                                        title: '{{ stock.stock_name }}({{ stock_code }})三大法人買賣超',
+                                        barmode: 'group',
+                                    };
+                                    return newData;
+                                }
+                                
+                                // Function to update chart based on range
+                                function updateChart(range) {
+                                    var newData = {};
+                                    switch (range) {
+                                        case '1m':
+                                            newData = getChartDataForLastMonths(1);
+                                            break;
+                                        case '3m':
+                                            newData = getChartDataForLastMonths(3);
+                                            break;
+                                        case '6m':
+                                            newData = getChartDataForLastMonths(6);
+                                            break;
+                                        case 'all':
+                                            newData.data = [{
+                                                x: chartData.dates.slice().reverse(),
+                                                y: chartData.foreign_diff_lots.slice().reverse(),
+                                                name: '外資買賣超',
+                                                type: 'bar'
+                                            }, {
+                                                x: chartData.dates.slice().reverse(),
+                                                y: chartData.investment_diff_lots.slice().reverse(),
+                                                name: '投信買賣超',
+                                                type: 'bar'
+                                            }, {
+                                                x: chartData.dates.slice().reverse(),
+                                                y: chartData.dealer_diff_lots.slice().reverse(),
+                                                name: '自營商買賣超',
+                                                type: 'bar'
+                                            }];
+                                            newData.layout = {
+                                                title: '{{ stock.stock_name }}({{ stock_code }})三大法人買賣超',
+                                                barmode: 'group',
+                                            };
+                                            break;
+                                        default:
+                                            newData = chartData;
+                                            break;
+                                    }
+                                    Plotly.react('bar-chart', newData.data, newData.layout);
+                                }
+                                
+                                // Initial chart rendering
+                                updateChart('1m');
+                            </script>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="dropdown mt-3">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" id="showEntriesDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    顯示筆數
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="showEntriesDropdown">
+                                    <button class="dropdown-item" onclick="showEntries(10)">顯示10筆</button>
+                                    <button class="dropdown-item" onclick="showEntries(20)">顯示20筆</button>
+                                    <button class="dropdown-item" onclick="showEntries(30)">顯示30筆</button>
+                                </div>
+                            </div>
+                            <div class="text-muted" style="text-align: right;">
+                                <h6>單位:張</h6>
+                            </div>
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    showEntries(10);
+                                });
+
+                                function showEntries(count) {
+                                    var rows = document.querySelectorAll('.data-row');
+                                    rows.forEach(function(row, index) {
+                                        if (index < count) {
+                                            row.style.display = 'table-row';
+                                        } else {
+                                            row.style.display = 'none';
+                                        }
+                                    });
+                                }
+                            </script>
+                            {% if juridical_datas %}
+                            <table class="table table-striped table-hover text-center">
+                                <thead>
+                                    <tr>
+                                        <th>日期</th>
+                                        <th>外資買進</th>
+                                        <th>外資賣出</th>
+                                        <th>外資買賣超</th>
+                                        <th>投信買進</th>
+                                        <th>投信賣出</th>
+                                        <th>投信買賣超</th>
+                                        <th>自營商買賣超</th>
+                                        <th>自營商買進(自行)</th>
+                                        <th>自營商賣出(自行)</th>
+                                        <th>自營商買賣超(自行)</th>
+                                        <th>自營商買進(避險)</th>
+                                        <th>自營商賣出(避險)</th>
+                                        <th>自營商買賣超(避險)</th>
+                                        <th>三大法人買賣超</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for juridical_data in juridical_datas %}
+                                    <tr class="data-row">
+                                        <td>{{ juridical_data.date }}</td>
+                                        <td>{{ juridical_data.foreign_investors_buy_lots }}</td>
+                                        <td>{{ juridical_data.foreign_investors_sell_lots }}</td>
+                                        <td>{{ juridical_data.foreign_investors_diff_lots }}</td>
+                                        <td>{{ juridical_data.investment_trust_buy_lots }}</td>
+                                        <td>{{ juridical_data.investment_trust_sell_lots }}</td>
+                                        <td>{{ juridical_data.investment_trust_diff_lots }}</td>
+                                        <td>{{ juridical_data.dealer_total_diff_lots }}</td>
+                                        <td>{{ juridical_data.dealer_self_buy_lots }}</td>
+                                        <td>{{ juridical_data.dealer_self_sell_lots }}</td>
+                                        <td>{{ juridical_data.dealer_self_diff_lots }}</td>
+                                        <td>{{ juridical_data.dealer_hedge_buy_lots }}</td>
+                                        <td>{{ juridical_data.dealer_hedge_sell_lots }}</td>
+                                        <td>{{ juridical_data.dealer_hedge_diff_lots }}</td>
+                                        <td>{{ juridical_data.total_diff_lots }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            {% else %}
+                                <H3 class="text-center"><strong>{{ stock_code }}未有資料</strong></H3>
+                            {% endif %}
+                            <div class="mt-5 text-muted">
+                                <ol>
+                                    <li>自營商表示證券自營商專戶。</li>
+                                    <li>投信表示本國投資信託基金。</li>
+                                    <li>外資及陸資表示依「華僑及外國人投資證券管理辦法」及「大陸地區投資人來臺從事證券投資及期貨交易管理辦法」辦理登記等投資人。</li>
+                                </ol>
+                                <p>
+                                    三大法人的資金雄厚，因此當他們大舉買超股票，
+                                    可能就會把股價拉得很高﹔反之，三大法人大量賣超股票，
+                                    股價下跌機率也會變高，這也是為什麼許多投資人會藉由觀察三大法人的動態，
+                                    來預測未來股價的漲跌，如果能跟著法人進出，散戶也有機會搭上他們的順風車。
+                                    雖然法人的資金龐大、對市場影響力大，但不代表他們一定穩賺不賠，
+                                    因此法人的進出只能作為輔助參考，不能當作唯一的買賣依據。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2"></div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% load static %}
+<hr>
+<h2 class="text-center"><strong>{{ stock.stock_name }}</strong></h2>
+<hr>
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 stock_block">
+      <ul class="nav nav-tabs anchor-nav" id="myTab" role="tablist">
+          <li class="nav-item" role="presentation">
+              <button class="nav-link anchor">
+                <a class="btn-link" href="{% url 'stock_detail' stock_code=stock.stock_code %}">個股概況</a>
+              </button>
+          </li>
+          <li class="nav-item" role="presentation">
+              <button class="nav-link anchor">
+                <a class="btn-link" href="{% url 'technical_analysis' stock_code=stock.stock_code %}">技術分析</a>
+              </button>
+          </li>
+          <li class="nav-item" role="presentation">
+              <button class="nav-link anchor">
+                <a class="btn-link" href="{% url 'juridical_data' stock_code=stock.stock_code %}">法人動態</a>
+              </button>
+          </li>
+          <li class="nav-item" role="presentation">
+              <button class="nav-link anchor">
+                <a class="btn-link" href="{% url 'stock_dividend' stock_code=stock.stock_code %}">股利分配</a>
+              </button>
+          </li>
+          <li class="nav-item" role="presentation">
+              <button class="nav-link anchor">
+                <a class="btn-link" href="{% url 'stock_holder' stock_code=stock.stock_code %}">持股分析</a>
+              </button>
+          </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      var currentUrl = window.location.href;
+      var navButtons = document.querySelectorAll(".nav-link.anchor");
+      console.log(currentUrl)
+      navButtons.forEach(function(button) {
+          var linkUrl = button.querySelector("a").getAttribute("href");
+          console.log(linkUrl)
+          if (currentUrl.includes(linkUrl)) {
+              button.classList.add("active");
+          }
+      });
+  });
+  </script>
