@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>E起T資F大財</title>
+    <link rel="stylesheet" href="">
+    {% load static %}
+    <link href="{% static 'css/bootstrap-4.3.1.css' %}" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="{% static 'images/icon.png' %}">
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container">
+        <a class="navbar-brand" href="{% url 'introduce' %}">智慧選股</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="#">最近新聞</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'stock_list' %}">台灣股市</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">社群討論</a>
+            </li>
+            {% if user.is_authenticated %}
+              <li class="nav-item">
+                <span class="nav-link">{{ user.username }}</span>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'logout' %}">登出</a>
+              </li>
+            {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'login' %}">登入</a>
+            </li>
+            {% endif %}
+          </ul>
+          <form class="form-inline my-2 my-lg-0" action="{% url 'stock_search' %}" method="GET">
+            <input class="form-control mr-sm-2" type="search" placeholder="輸入股票代號或名稱" aria-label="Search" name="keyword">
+            <button class="btn btn-outline-light my-2 my-sm-0" type="submit">搜尋</button>
+        </form>
+        </div>
+      </div>
+    </nav>
+    {% block content %}
+    {% endblock %}
+    <hr>
+    <footer class="text-center">
+      <div class="container">
+        <div class="row">
+          <div class="col-12">
+            <p class="text-muted" style="font-size: 0.75rem;">
+              資訊來源：臺灣證券交易所 TWSE、財團法人中華民國證券櫃檯買賣中心 GTSM、Yahoo奇摩股市。
+              <br>本網站提供之資料僅供參考，對資訊正確、延遲或傳輸中斷不負任何責任，如使用者依本資料交易發生損失需自行負責。
+            </p>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
+    <script src="{% static 'js/popper.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap-4.3.1.js' %}"></script>
+    <script src='https://cdn.plot.ly/plotly-2.31.1.min.js'></script>
+	  <script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js'></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
+  </body>
+</html>

@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% include 'stock_detail_base.html' %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12 stock_block">
+            <div class="tab-content">
+                <div class="tab-pane fade show active">
+                <div class="row">
+                    <div class="col-lg-12">{{ plot_industry_hold | safe }}</div>
+                    <div class="col-lg-6">
+                    {% if industry_holds %}
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>行業類別</th>
+                                    <th>比重</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for industry_hold in industry_holds %}
+                                    <tr>
+                                        <td>{{ industry_hold.industry_holder }}</td>
+                                        <td>{{ industry_hold.percentage }}%</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <H3 class="text-center"><strong>{{ stock_code }}未有行業比重紀錄</strong></H3>
+                    {% endif %}
+                    </div>
+                    <div class="col-lg-6">
+                    {% if stock_holds %}
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>前十大持股</th>
+                                    <th>比重</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stock_hold in stock_holds %}
+                                    <tr>
+                                        <td>{{ stock_hold.stock_holder }}</td>
+                                        <td>{{ stock_hold.percentage }}%</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <H3 class="text-center"><strong>{{ stock_code }}未有持股比重紀錄</strong></H3>
+                    {% endif %}
+                    </div>
+                    <p class="text-muted mt-5">
+                    ＊ETF並非單一股票或單一債券組合而成，
+                    而是一籃子投資標組合而成的，ETF成分股決定了ETF的價值，
+                    對於想要以低成本進行資產配置的投資人而言，深入了解基金組合比例是偏重股票、期貨、債券，
+                    再進一步分析股票型的產業分布、持股明細和持股權重比例，可掌握到底是哪些成分股的表現影響ETF成長或衰退，
+                    也可以在ETF選股時，盡可能避免購買單支成分股權重過高的ETF，較容易使投資風險過於集中。基金淨值會隨持有個股的每日股價而變動，
+                    基金經理人不會頻繁調整持股比例，故證交所除每季公布持股比例外，每月亦會公布該基金所持個股中，淨資產價值比例排行前五大的個股。
+                    </p>
+                </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

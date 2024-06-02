@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <hr>
+    <h2 class="text-center"><strong>台灣股市</strong></h2>
+    <hr>
+    <div class="container">
+        <div class="row text-center">
+          <table class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th scope="col">證券名稱</th>
+                <th scope="col">證券號碼</th>
+                <th scope="col">開盤價</th>
+                <th scope="col">最高價</th>
+                <th scope="col">最低價</th>
+                <th scope="col">收盤價</th>
+                <th scope="col">漲跌(+/-)</th>
+                <th scope="col">漲跌價差</th>
+                <th scope="col">成交股數</th>
+                <th scope="col">成交金額</th>
+                <th scope="col">日期</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if stock_list %}
+                {% for stock in stock_list %}
+                <tr>
+                  <th scope="row"><a href="{% url 'stock_detail' stock_code=stock.stock_code %}">{{ stock.stock_name }}</a></th>
+                  <td>{{ stock.stock_code }}</td>
+                  <td>{{ stock.open_price }}</td>
+                  <td>{{ stock.high_price }}</td>
+                  <td>{{ stock.low_price }}</td>
+                  <td>{{ stock.close_price }}</td>
+                  <td>{{ stock.pos_neg }}</td>
+                  <td>{{ stock.change_percent }}</td>
+                  <td>{{ stock.total_volume }}</td>
+                  <td>{{ stock.total_value }}</td>
+                  <td>{{ stock.date }}</td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <h2 class="text-center"><strong>沒有資訊</strong></h2>
+              {% endif %}
+            </tbody>
+          </table>
+          <div class="pagination">
+              <span class="step-links">
+                  {% if stock_list.has_previous %}
+                      <a href="?page=1">&laquo; 第一頁</a>
+                      <a href="?page={{ stock_list.previous_page_number }}">上一頁</a>
+                  {% endif %}
+          
+                  <span class="current">
+                      第 {{ stock_list.number }} 頁，共 {{ stock_list.paginator.num_pages }} 頁。
+                  </span>
+          
+                  {% if stock_list.has_next %}
+                      <a href="?page={{ stock_list.next_page_number }}">下一頁</a>
+                      <a href="?page={{ stock_list.paginator.num_pages }}">最後一頁 &raquo;</a>
+                  {% endif %}
+              </span>
+          </div>
+        </div>
+    </div>
+{% endblock %}
