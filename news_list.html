@@ -3,8 +3,8 @@
 {% block content %}
 
 <script>
-    function trackClick(link) {
-        fetch(`/track_url_click/?url=${encodeURIComponent(link)}`)
+    function trackClick(newsUrl) {
+        fetch(`/track_url_click/?url=${encodeURIComponent(newsUrl)}`)
             .then(response => response.json())
             .then(data => {
                 console.log(data);
@@ -17,7 +17,7 @@
 </script>
 
 <hr>
-    <h2 class="text-center"><strong>熱門新聞</strong></h2>
+    <h2 class="text-center"><strong>最近新聞</strong></h2>
 <hr>
 
 <div class="container">
@@ -25,8 +25,8 @@
 
 
             <ul>
-                {% for single_news in news_list1 %}
-                {% if single_news.link != "unknow domain" %}
+                {% for single_news in news_list %}
+                {% if single_news.newsurl != "unknow domain" %}
                     <li class="ul-hover ul-a ul-b">
                         <div class="row">
                             <div class="col-lg-4">
@@ -40,7 +40,7 @@
                                 
                             <div class="col-lg-8">
                                 
-                                <h3><a href="{{ single_news.link }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.link }}')">{{ single_news.title }}</a></h3>
+                                <h3><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h3>
                                     {% if single_news.content != "unknow domain" %}
                                         <p>{{ single_news.summar }}</p>
                                     {% else %}
@@ -51,7 +51,9 @@
                                     <!-- 根據情緒得分顯示圖片 -->
                                     {% if single_news.sentiment < -0.3 %}
                                         <img src="{% static 'images/負評.png' %}" alt="負評" class="sentiment-icon" width="50" height="50" style="float: right;">
-                                    {% elif single_news.sentiment > 0.3 %}
+                                    {% elif single_news.sentiment <= 0.3 %}
+                                        <img src="{% static 'images/一般.png' %}" alt="一般" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                    {% else %}
                                         <img src="{% static 'images/正評.png' %}" alt="正評" class="sentiment-icon" width="50" height="50" style="float: right;">
                                     {% endif %}
                             </div> 

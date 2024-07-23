@@ -17,7 +17,7 @@
 </script>
 
 <hr>
-    <h2 class="text-center"><strong>最新新聞</strong></h2>
+    <h2 class="text-center"><strong>負評新聞</strong></h2>
 <hr>
 
 <div class="container">
@@ -25,7 +25,7 @@
 
 
             <ul>
-                {% for single_news in news_list2 %}
+                {% for single_news in news_list4 %}
                     {% if single_news.link != "unknow domain" %}
                         <li class="ul-hover ul-a ul-b">
                             <div class="row">
@@ -54,6 +54,7 @@
                                         {% elif single_news.sentiment > 0.3 %}
                                             <img src="{% static 'images/正評.png' %}" alt="正評" class="sentiment-icon" width="50" height="50" style="float: right;">
                                         {% endif %}
+                                        <p class="news-details"><strong>情绪得分:</strong> {{ single_news.sentiment}}</p>
                                 </div> 
                             </div>
                         </li>

@@ -4,8 +4,8 @@
 {% csrf_token %}
 
 <script>
-    function trackClick(newsUrl) {
-        fetch(`/track_url_click/?url=${encodeURIComponent(newsUrl)}`)
+    function trackClick(link) {
+        fetch(`/track_url_click/?url=${encodeURIComponent(link)}`)
             .then(response => response.json())
             .then(data => {
                 console.log(data);
@@ -284,9 +284,15 @@
                         </div>
                                                    
                         <div class="col-lg-8">                           
-                            <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                            <h5><a href="{{ single_news.link }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.link }}')">{{ single_news.title }}</a></h5>
                                 <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
                                 <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                <!-- 根據情緒得分顯示圖片 -->
+                                {% if single_news.sentiment < -0.3 %}
+                                    <img src="{% static 'images/負評.png' %}" alt="負評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                {% elif single_news.sentiment > 0.3 %}
+                                    <img src="{% static 'images/正評.png' %}" alt="正評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                {% endif %}
                         </div> 
 
                     </div>
@@ -313,9 +319,15 @@
                         </div>
                                                 
                         <div class="col-lg-8">
-                            <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                            <h5><a href="{{ single_news.link }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.link }}')">{{ single_news.title }}</a></h5>
                                 <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
                                 <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                <!-- 根據情緒得分顯示圖片 -->
+                                {% if single_news.sentiment < -0.3 %}
+                                    <img src="{% static 'images/負評.png' %}" alt="負評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                {% elif single_news.sentiment > 0.3 %}
+                                    <img src="{% static 'images/正評.png' %}" alt="正評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                {% endif %}
                         </div> 
 
                     </div>
@@ -363,9 +375,15 @@
                                                 </div>
 
                                             <div class="col-lg-8">
-                                                <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                                <h5><a href="{{ single_news.link }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.link }}')">{{ single_news.title }}</a></h5>
                                                 <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
                                                 <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                                <!-- 根據情緒得分顯示圖片 -->
+                                                {% if single_news.sentiment < -0.3 %}
+                                                    <img src="{% static 'images/負評.png' %}" alt="負評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                                {% elif single_news.sentiment > 0.3 %}
+                                                    <img src="{% static 'images/正評.png' %}" alt="正評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                                {% endif %}
                                             </div>
 
                                         </div>
@@ -385,9 +403,15 @@
                                             </div>
 
                                             <div class="col-lg-8">
-                                                <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                                <h5><a href="{{ single_news.link }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.link }}')">{{ single_news.title }}</a></h5>
                                                 <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
                                                 <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                                <!-- 根據情緒得分顯示圖片 -->
+                                                {% if single_news.sentiment < -0.3 %}
+                                                    <img src="{% static 'images/負評.png' %}" alt="負評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                                {% elif single_news.sentiment > 0.3 %}
+                                                    <img src="{% static 'images/正評.png' %}" alt="正評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                                {% endif %}
                                             </div> 
 
                                         </div>
@@ -859,7 +883,6 @@
                                                         <option value="code410">2020</option>
                                                         <option value="code411">2022</option>
                                                         <option value="code412">2023</option>
-                                                        <option value="code413">2024</option>
                                                         <option value="code414">2025</option>
                                                         <option value="code415">2027</option>
                                                         <option value="code416">2028</option>
@@ -3117,9 +3140,15 @@
                                                                 {% endif %}
                                                             </div>
                                                             <div class="col-lg-8">
-                                                                <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                                                <h5><a href="{{ single_news.link }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.link }}')">{{ single_news.title }}</a></h5>
                                                                 <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
                                                                 <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                                                <!-- 根據情緒得分顯示圖片 -->
+                                                                {% if single_news.sentiment < -0.3 %}
+                                                                    <img src="{% static 'images/負評.png' %}" alt="負評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                                                {% elif single_news.sentiment > 0.3 %}
+                                                                    <img src="{% static 'images/正評.png' %}" alt="正評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                                                {% endif %}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -3134,9 +3163,15 @@
                                                                 {% endif %}
                                                             </div>
                                                             <div class="col-lg-8">
-                                                                <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                                                <h5><a href="{{ single_news.link }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.link }}')">{{ single_news.title }}</a></h5>
                                                                 <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
                                                                 <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                                                <!-- 根據情緒得分顯示圖片 -->
+                                                                {% if single_news.sentiment < -0.3 %}
+                                                                    <img src="{% static 'images/負評.png' %}" alt="負評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                                                {% elif single_news.sentiment > 0.3 %}
+                                                                    <img src="{% static 'images/正評.png' %}" alt="正評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                                                {% endif %}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -3163,9 +3198,15 @@
                                                             {% endif %}
                                                         </div>
                                                         <div class="col-lg-8">
-                                                            <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                                            <h5><a href="{{ single_news.link }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.link }}')">{{ single_news.title }}</a></h5>
                                                             <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
                                                             <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                                            <!-- 根據情緒得分顯示圖片 -->
+                                                            {% if single_news.sentiment < -0.3 %}
+                                                                <img src="{% static 'images/負評.png' %}" alt="負評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                                            {% elif single_news.sentiment > 0.3 %}
+                                                                <img src="{% static 'images/正評.png' %}" alt="正評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                                            {% endif %}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -3191,9 +3232,15 @@
                                                             {% endif %}
                                                         </div>
                                                         <div class="col-lg-8">
-                                                            <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                                            <h5><a href="{{ single_news.link }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.link }}')">{{ single_news.title }}</a></h5>
                                                             <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
                                                             <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                                            <!-- 根據情緒得分顯示圖片 -->
+                                                            {% if single_news.sentiment < -0.3 %}
+                                                                <img src="{% static 'images/負評.png' %}" alt="負評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                                            {% elif single_news.sentiment > 0.3 %}
+                                                                <img src="{% static 'images/正評.png' %}" alt="正評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                                            {% endif %}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -3219,9 +3266,15 @@
                                                             {% endif %}
                                                         </div>
                                                         <div class="col-lg-8">
-                                                            <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                                            <h5><a href="{{ single_news.link }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.link }}')">{{ single_news.title }}</a></h5>
                                                             <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
                                                             <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                                            <!-- 根據情緒得分顯示圖片 -->
+                                                            {% if single_news.sentiment < -0.3 %}
+                                                                <img src="{% static 'images/負評.png' %}" alt="負評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                                            {% elif single_news.sentiment > 0.3 %}
+                                                                <img src="{% static 'images/正評.png' %}" alt="正評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                                            {% endif %}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -3247,9 +3300,15 @@
                                                             {% endif %}
                                                         </div>
                                                         <div class="col-lg-8">
-                                                            <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                                            <h5><a href="{{ single_news.link }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.link }}')">{{ single_news.title }}</a></h5>
                                                             <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
                                                             <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                                            <!-- 根據情緒得分顯示圖片 -->
+                                                            {% if single_news.sentiment < -0.3 %}
+                                                                <img src="{% static 'images/負評.png' %}" alt="負評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                                            {% elif single_news.sentiment > 0.3 %}
+                                                                <img src="{% static 'images/正評.png' %}" alt="正評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                                            {% endif %}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -3275,9 +3334,15 @@
                                                             {% endif %}
                                                         </div>
                                                         <div class="col-lg-8">
-                                                            <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                                            <h5><a href="{{ single_news.link }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.link }}')">{{ single_news.title }}</a></h5>
                                                             <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
                                                             <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                                            <!-- 根據情緒得分顯示圖片 -->
+                                                            {% if single_news.sentiment < -0.3 %}
+                                                                <img src="{% static 'images/負評.png' %}" alt="負評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                                            {% elif single_news.sentiment > 0.3 %}
+                                                                <img src="{% static 'images/正評.png' %}" alt="正評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                                            {% endif %}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -3331,9 +3396,15 @@
                                                 </div>
 
                                                 <div class="col-lg-8">
-                                                    <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                                    <h5><a href="{{ single_news.link }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.link }}')">{{ single_news.title }}</a></h5>
                                                     <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
                                                     <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                                    <!-- 根據情緒得分顯示圖片 -->
+                                                    {% if single_news.sentiment < -0.3 %}
+                                                        <img src="{% static 'images/負評.png' %}" alt="負評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                                    {% elif single_news.sentiment > 0.3 %}
+                                                        <img src="{% static 'images/正評.png' %}" alt="正評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                                    {% endif %}
                                                 </div>
 
                                             </div>
@@ -3353,9 +3424,15 @@
                                                 </div>
 
                                                 <div class="col-lg-8">
-                                                    <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                                    <h5><a href="{{ single_news.link }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.link }}')">{{ single_news.title }}</a></h5>
                                                     <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
                                                     <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                                    <!-- 根據情緒得分顯示圖片 -->
+                                                    {% if single_news.sentiment < -0.3 %}
+                                                        <img src="{% static 'images/負評.png' %}" alt="負評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                                    {% elif single_news.sentiment > 0.3 %}
+                                                        <img src="{% static 'images/正評.png' %}" alt="正評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                                    {% endif %}
                                                 </div> 
 
                                             </div>
@@ -3402,9 +3479,15 @@
                                             {% endif %}
                                         </div>
                                         <div class="col-lg-8">      
-                                            <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                            <h5><a href="{{ single_news.link }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.link }}')">{{ single_news.title }}</a></h5>
                                             <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
                                             <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                            <!-- 根據情緒得分顯示圖片 -->
+                                            {% if single_news.sentiment < -0.3 %}
+                                                <img src="{% static 'images/負評.png' %}" alt="負評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                            {% elif single_news.sentiment > 0.3 %}
+                                                <img src="{% static 'images/正評.png' %}" alt="正評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                            {% endif %}
                                         </div> 
                                     </div>
                                 </li>
@@ -3424,9 +3507,15 @@
                                             {% endif %}
                                         </div>
                                         <div class="col-lg-8">      
-                                            <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                            <h5><a href="{{ single_news.link }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.link }}')">{{ single_news.title }}</a></h5>
                                             <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
                                             <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                            <!-- 根據情緒得分顯示圖片 -->
+                                            {% if single_news.sentiment < -0.3 %}
+                                                <img src="{% static 'images/負評.png' %}" alt="負評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                            {% elif single_news.sentiment > 0.3 %}
+                                                <img src="{% static 'images/正評.png' %}" alt="正評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                            {% endif %}
                                         </div> 
                                     </div>
                                 </li>
@@ -3446,9 +3535,15 @@
                                             {% endif %}
                                         </div>
                                         <div class="col-lg-8">      
-                                            <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                            <h5><a href="{{ single_news.link }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.link }}')">{{ single_news.title }}</a></h5>
                                             <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
                                             <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                            <!-- 根據情緒得分顯示圖片 -->
+                                            {% if single_news.sentiment < -0.3 %}
+                                                <img src="{% static 'images/負評.png' %}" alt="負評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                            {% elif single_news.sentiment > 0.3 %}
+                                                <img src="{% static 'images/正評.png' %}" alt="正評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                            {% endif %}
                                         </div> 
                                     </div>
                                 </li>
@@ -3461,7 +3556,7 @@
                 <ul>
                     <div class="row">
                         <div class="col-lg-4">
-                            <a href="{% url 'news_theme' search_key='Yahoo奇摩' %}" target="_blank" class="news-title">Yahoo奇摩</a>
+                            <a href="{% url 'news_theme' search_key='永豐中國科技50大' %}" target="_blank" class="news-title">永豐中國科技50大</a>
                             {% for single_news in news_theme4 %}
                                 <li class="ul-hover ul-a ul-b">
                                     <div class="row">
@@ -3473,9 +3568,15 @@
                                             {% endif %}
                                         </div>
                                         <div class="col-lg-8">      
-                                            <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                            <h5><a href="{{ single_news.link }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.link }}')">{{ single_news.title }}</a></h5>
                                             <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
                                             <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                            <!-- 根據情緒得分顯示圖片 -->
+                                            {% if single_news.sentiment < -0.3 %}
+                                                <img src="{% static 'images/負評.png' %}" alt="負評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                            {% elif single_news.sentiment > 0.3 %}
+                                                <img src="{% static 'images/正評.png' %}" alt="正評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                            {% endif %}
                                         </div> 
                                     </div>
                                 </li>
@@ -3483,7 +3584,7 @@
                         </div>
 
                         <div class="col-lg-4">
-                            <a href="{% url 'news_theme' search_key='財經' %}" target="_blank" class="news-title">財經</a>
+                            <a href="{% url 'news_theme' search_key='富邦深100' %}" target="_blank" class="news-title">富邦深100</a>
                             {% for single_news in news_theme5 %}
                                 <li class="ul-hover ul-a ul-b">
                                     <div class="row">
@@ -3495,9 +3596,15 @@
                                             {% endif %}
                                         </div>
                                         <div class="col-lg-8">      
-                                            <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                            <h5><a href="{{ single_news.link }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.link }}')">{{ single_news.title }}</a></h5>
                                             <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
                                             <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                            <!-- 根據情緒得分顯示圖片 -->
+                                            {% if single_news.sentiment < -0.3 %}
+                                                <img src="{% static 'images/負評.png' %}" alt="負評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                            {% elif single_news.sentiment > 0.3 %}
+                                                <img src="{% static 'images/正評.png' %}" alt="正評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                            {% endif %}
                                         </div> 
                                     </div>
                                 </li>
@@ -3505,7 +3612,7 @@
                         </div>
 
                         <div class="col-lg-4">
-                            <a href="{% url 'news_theme' search_key='0050' %}" target="_blank" class="news-title">0050</a>
+                            <a href="{% url 'news_theme' search_key='元大滬深300正2' %}" target="_blank" class="news-title">元大滬深300正2</a>
                             {% for single_news in news_theme6 %}
                                 <li class="ul-hover ul-a ul-b">
                                     <div class="row">
@@ -3517,22 +3624,32 @@
                                             {% endif %}
                                         </div>
                                         <div class="col-lg-8">      
-                                            <h5><a href="{{ single_news.newsUrl }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.newsUrl }}')">{{ single_news.title }}</a></h5>
+                                            <h5><a href="{{ single_news.link }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.link }}')">{{ single_news.title }}</a></h5>
                                             <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
                                             <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                            <!-- 根據情緒得分顯示圖片 -->
+                                            {% if single_news.sentiment < -0.3 %}
+                                                <img src="{% static 'images/負評.png' %}" alt="負評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                            {% elif single_news.sentiment > 0.3 %}
+                                                <img src="{% static 'images/正評.png' %}" alt="正評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                            {% endif %}
                                         </div> 
                                     </div>
                                 </li>
                             {% endfor %}
                         </div>
                     </div>
-
+                    
                 </ul>
             </div>
 
+            
 
 
         </div>
     {% endif %}
+
+
+    
 </div>
 {% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<script>
+    function trackClick(link) {
+        fetch(`/track_url_click/?url=${encodeURIComponent(link)}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.status !== 'success') {
+                    console.error('Failed to track URL click');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+</script>
+
+<hr>
+    <h2 class="text-center"><strong>正評討論版</strong></h2>
+<hr>
+
+<div class="container">
+    <div class="row">
+        <!-- 添加标题列 -->
+        <div class="col-8 font-weight-bold bg-light">討論版</div>
+        <div class="col-2 font-weight-bold bg-light">正評數</div>
+        <div class="col-2 font-weight-bold bg-light">負評數</div>
+    </div>
+
+    {% for single_news in news_list7|slice:"5" %}
+    <li class="ul-hover ul-a ul-b">
+        
+        <div class="row">
+                                       
+            <div class="col-lg-8">                           
+                <h5><a href="{{ single_news.article_link }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.article_link }}')">{{ single_news.search_key }}</a></h5>
+                    
+            </div> 
+
+            <div class="col-2">
+                <span class="badge badge-success badge-pill">{{ single_news.positive }}</span>
+            </div>
+            <div class="col-2">
+                <span class="badge badge-danger badge-pill">{{ single_news.negative }}</span>
+            </div>
+
+        </div>
+
+    </li>              
+    {% endfor %}
+</div>
+
+{% endblock %}

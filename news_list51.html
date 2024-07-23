@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<script>
+    function trackClick(link) {
+        fetch(`/track_url_click/?url=${encodeURIComponent(link)}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.status !== 'success') {
+                    console.error('Failed to track URL click');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+</script>
+
+<hr>
+<h2 class="text-center"><strong>ETF名稱正評排行</strong></h2>
+<hr>
+
+<div class="container">
+    <div class="row">
+        <!-- 添加标题列 -->
+        <div class="col-4 font-weight-bold bg-light">ETF名稱</div>
+        <div class="col-4 font-weight-bold bg-light">正評數</div>
+        <div class="col-4 font-weight-bold bg-light">負評數</div>
+    </div>
+
+    <!-- 正評排行列表 -->
+    <div class="row">
+        {% for single_news in news_list51 %}
+        <div class="col-4">
+            <a href="{% url 'news_theme' single_news.search_key %}" class="font-weight-bold">{{ single_news.search_key }}</a>
+        </div>
+        <div class="col-4">
+            <span class="badge badge-success badge-pill">{{ single_news.positive }}</span>
+        </div>
+        <div class="col-4">
+            <span class="badge badge-danger badge-pill">{{ single_news.negative }}</span>
+        </div>
+        {% if forloop.counter|divisibleby:3 and not forloop.last %}
+    </div>
+    <div class="row">
+        {% endif %}
+        {% empty %}
+        <div class="col-12 text-center text-muted">暂无数据</div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
