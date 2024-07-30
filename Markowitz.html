@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>ETF 投資組合分析</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        #results {
+            margin-top: 20px;
+        }
+        #chart {
+            margin-top: 20px;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>ETF 投資組合分析工具</h1>
+    <p>選擇你要分析的ETF：</p>
+    <select id="etfSelect" multiple>
+        <!-- ETF 選單由 JavaScript 動態填充 -->
+    </select>
+    <button id="analyzeBtn">分析</button>
+    
+    <div id="results">
+        <h2>計算結果</h2>
+        <table id="returnTable" border="1">
+            <!-- 計算結果表格將由 JavaScript 動態填充 -->
+        </table>
+    </div>
+
+    <div id="chart">
+        <h2>效率前緣圖表</h2>
+        <img id="effFrontImg" src="" alt="Efficient Frontier Chart">
+    </div>
+
+    <script>
+        // 載入 ETF 選單
+        $(document).ready(function() {
+            const etfList = ['SPY', 'IVV', 'VTI', 'VOO', 'XLF', 'XLY']; // 使用更多 ETF 代碼
+            etfList.forEach(etf => {
+                $('#etfSelect').append(new Option(etf, etf));
+            });
+        });
+
+        // 分析按鈕事件處理
+        $('#analyzeBtn').click(function() {
+            const selectedETFs = $('#etfSelect').val();
+            $.post('/analyze', { etfs: selectedETFs }, function(data) {
+                // 顯示計算結果表格
+                const tableHtml = `<tr>
+                    <th>ETF</th>
+                    <th>預期報酬率</th>
+                    <th>標準差</th>
+                </tr>${data.return_dev_matrix.map(row => `
+                    <tr>
+                        <td>${row.etf}</td>
+                        <td>${row['Exp Returns']}</td>
+                        <td>${row['Standard Dev.']}</td>
+                    </tr>
+                `).join('')}`;
+                $('#returnTable').html(tableHtml);
+
+                // 顯示效率前緣圖表
+                $('#effFrontImg').attr('src', data.plot_file);
+            });
+        });
+    </script>
+</body>
+</html>
