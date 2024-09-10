@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% include 'intelligent_base.html' %}
+<div class="container-fluid mt-3">
+  <hr>
+  <div class="row">
+    <div class="col-1"></div>
+    <div class="col-10">
+      <h4><strong>模型背景與目標</strong></h4>
+      <p>我們的股票評估模型結合了公司財務數據與技術指標，使用機器學習技術來預測未來股價的變動情況。模型基於XGBoost演算法，並通過歷史數據訓練，提供每隻股票的表現預測，以幫助投資者做出更明智的投資決策。</p>
+      <h4><strong>模型核心特徵</strong></h4>
+      <ul>
+        <li><strong>財務指標</strong>：模型使用了多種重要的財務指標，如每股盈餘 (EPS)、本益比 (PE Ratio)、股價淨值比(PB Ratio)、負債權益比、流動比率等、毛利率、營業利益率、淨利率、資產報酬率、權益報酬率、負債比率及公司財報，這些指標能夠反映公司基本面的健康狀況。</li>
+        <li><strong>技術指標</strong>：我們整合了技術分析指標，包括移動平均線、乖離率、相對強弱指標 (RSI)、布林通道、MACD、ATR、成交量加權平均價、隨機指標、EMA、動量指標、威廉指數、商品通道指數、三重指標、平均定向指標，這些指標能夠捕捉股價趨勢和市場情緒的變化。</li>
+        <li><strong>公司表現</strong>：模型針對每隻股票的未來表現進行評分，該評分用來表示股票在接下來的一段時間內可能的上漲機率，並根據在ETF中的比例加權計算得出平均表現。</li>
+      </ul>
+      <p>此模型適合想要基於公司財務狀況和技術指標進行投資決策的投資者。它能夠幫助篩選出具有潛力的ETF。</p>
+      <p><strong>*註:平均表現越接近100表示越好;公司表現越接近1越好</strong></p>
+    </div>
+    <div class="col-1"></div>
+  </div>
+  <hr>
+  <div class="row">
+    <div class="col-1"></div>
+    <div class="col-10">
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th scope="col">排行</th>
+            <th scope="col">代碼</th>
+            <th scope="col" colspan="11">名稱</th>
+            <th scope="col">收盤價</th>
+            <th scope="col">漲跌</th>
+            <th scope="col">平均表現</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if data %}
+            {% for etf in data %}
+            <tr data-bs-toggle="collapse" href="#collapse{{ etf.performance.rank }}" role="button" aria-expanded="false" aria-controls="collapse{{ etf.performance.rank }}" style="cursor: pointer;">
+              <th>{{ etf.performance.rank }}</th>
+              <td>{{ etf.performance.fund_code }}</td>
+              <td colspan="11">{{ etf.performance.fund_name }}</td>
+              <td>{{ etf.stock.close_price }}</td>
+              <td>{{ etf.stock.pos_neg }}{{ etf.stock.change_percent }}</td>
+              <td>{{ etf.round_average_performance }}</td>
+            </tr>
+            <tr>
+              <td colspan="18" class="p-0">
+                <div class="collapse" id="collapse{{ etf.performance.rank }}">
+                  <table class="table mb-0 text-center">
+                    <thead>
+                      <tr>
+                        <th></th>
+                        <td></td>
+                        <td>成分股</td>
+                        <td></td>
+                        <td>本益比</td>
+                        <td>股價淨值比</td>
+                        <td>殖利率</td>
+                        <td>流動比率</td>
+                        <td>負債權益比</td>
+                        <td>毛利率</td>
+                        <td>營業利益率</td>
+                        <td>淨利率</td>
+                        <td>資產報酬率</td>
+                        <td>權益報酬率</td>
+                        <td>負債比率</td>
+                        <td>公司表現</td>
+                        <td>持有比例</td>
+                        <td></td>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for holding_data in etf.holdings_data %}
+                      <tr>
+                        <th></th>
+                        <td></td>
+                        <td>{{ holding_data.holding.stock_code }}</td>
+                        <td>{{ holding_data.holding.stock_name }}</td>
+                        {% if holding_data.ratios %}
+                          {% for ratio in holding_data.ratios %}
+                            <td>{{ ratio.PEratio }}</td>
+                            <td>{{ ratio.PBratio }}</td>
+                            <td>{{ ratio.DividendYield }}</td>
+                          {% endfor %}
+                        {% else %}
+                          <td>-</td>
+                          <td>-</td>
+                          <td>-</td>
+                        {% endif %}
+                        {% if holding_data.stock_performance %}
+                          {% for performance in holding_data.stock_performance %}
+                            <td>{{ performance.Current_Ratio }}</td>
+                            <td>{{ performance.Debt_to_Equity }}</td>
+                            <td>{{ performance.Gross_Profit_Margin }}</td>
+                            <td>{{ performance.Operating_Profit_Margin }}</td>
+                            <td>{{ performance.Net_Profit_Margin }}</td>
+                            <td>{{ performance.ROA }}</td>
+                            <td>{{ performance.ROE }}</td>
+                            <td>{{ performance.Debt_ratio }}</td>
+                            <td>{{ performance.performance }}</td>
+                          {% endfor %}
+                        {% else %}
+                          <td>-</td>
+                          <td>-</td>
+                          <td>-</td>
+                          <td>-</td>
+                          <td>-</td>
+                          <td>-</td>
+                          <td>-</td>
+                          <td>-</td>
+                          <td>-</td>
+                        {% endif %}
+                        <td>{{ holding_data.holding.stock_ratio }}%</td>
+                        <td></td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <h2 class="text-center"><strong>沒有資訊</strong></h2>
+          {% endif %}
+        </tbody>
+      </table>          
+    </div>
+    <div class="col-1"></div>
+  </div>
+</div>
+{% endblock %}
