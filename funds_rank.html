@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% include 'intelligent_base.html' %}
+<div class="container-fluid">
+    <hr>
+    <div class="row">
+        <div class="col-12 text-center">
+            <h2><strong>標準差（Standard Deviation）</strong></h4>
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-3">
+            <h4><strong>定義：</strong></h4>
+            <ul>
+                <li>衡量基金在一段時間內的波動幅度，代表基金的「風險」。</li>
+            </ul>
+        </div>
+        <div class="col-3">
+            <h4><strong>特點：</strong></h4>
+            <ul>
+                <li>標準差大，風險高；標準差小，風險低。</li>
+                <li>包括系統性風險（無法消除的）與非系統性風險（可分散的）。</li>
+            </ul>
+        </div>
+        <div class="col-3">
+            <h4><strong>應用：</strong></h4>
+            <ul>
+                <li>搭配報酬率使用，幫助預測基金可能的波動範圍。</li>
+                <li>波動幅度（不論大漲或大跌）都會使標準差變大，因此須注意波動方向是否符合預期。</li>
+            </ul>
+        </div>
+        <div class="col-3">
+            <h4><strong>適合長期投資：</strong></h4>
+            <ul>
+                <li>ETF規模越大</li>
+                <li>成交量越多</li>
+                <li>總管理費用越少</li>
+                <li>折溢價(超出+-2%表示ETF已偏離他的指數很多)</li>
+            </ul>
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-12">
+            <script>
+                function sortTable(n, tableId) {
+                    var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+                    table = document.getElementById(tableId);
+                    switching = true;
+                    dir = "asc"; 
+                    
+                    var headers = table.getElementsByTagName("th");
+                    for (i = 0; i < headers.length; i++) {
+                        headers[i].innerHTML = headers[i].innerHTML.replace(/<svg.*?>/g, ""); // 移除箭頭圖片
+                    }
+                
+                    while (switching) {
+                        switching = false;
+                        rows = table.rows;
+                        for (i = 1; i < (rows.length - 1); i++) {
+                            shouldSwitch = false;
+                            x = rows[i].getElementsByTagName("TD")[n];
+                            y = rows[i + 1].getElementsByTagName("TD")[n];
+                            
+                            var xContent = x.innerHTML.trim();
+                            var yContent = y.innerHTML.trim();
+                            
+                            if (!isNaN(parseFloat(xContent)) && !isNaN(parseFloat(yContent))) {
+                                if (dir == "asc") {
+                                    if (parseFloat(xContent) > parseFloat(yContent)) {
+                                        shouldSwitch = true;
+                                        break;
+                                    }
+                                } else if (dir == "desc") {
+                                    if (parseFloat(xContent) < parseFloat(yContent)) {
+                                        shouldSwitch = true;
+                                        break;
+                                    }
+                                }
+                            } else {
+                                if (dir == "asc") {
+                                    if (xContent.toLowerCase() > yContent.toLowerCase()) {
+                                        shouldSwitch = true;
+                                        break;
+                                    }
+                                } else if (dir == "desc") {
+                                    if (xContent.toLowerCase() < yContent.toLowerCase()) {
+                                        shouldSwitch = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        if (shouldSwitch) {
+                            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                            switching = true;
+                            switchcount++;      
+                        } else {
+                            if (switchcount == 0 && dir == "asc") {
+                                dir = "desc";
+                                switching = true;
+                            }
+                        }
+                    }
+                
+                    if (dir == "asc") {
+                        headers[n].innerHTML += " <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 12' width='20' height='24'><path fill='%23000000' d='M9 6.75a.505.505 0 0 1-.5.5h-7a.5.5 0 0 1-.352-.85l3.5-3.5a.493.493 0 0 1 .7 0l3.5 3.5A.482.482 0 0 1 9 6.75z'/></svg>";
+                    } else {
+                        headers[n].innerHTML += " <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 12' width='20' height='24'><path fill='%23000000' d='M9 4.25a.482.482 0 0 1-.148.352l-3.5 3.5a.493.493 0 0 1-.7 0l-3.5-3.5A.5.5 0 0 1 1.5 3.75h7a.505.505 0 0 1 .5.5z'/></svg>";
+                    }
+                }
+            </script>
+
+            <!-- 顯示符合風險類型的基金 -->
+            {% if matching_funds %}
+            <h2>符合您的風險類型ETF</h2>
+            <table id="matchingFundsTable" class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable(0, 'matchingFundsTable')">代號</th>
+                        <th onclick="sortTable(1, 'matchingFundsTable')">名稱</th>
+                        <th onclick="sortTable(2, 'matchingFundsTable')">市價</th>
+                        <th onclick="sortTable(3, 'matchingFundsTable')">淨值</th>
+                        <th onclick="sortTable(4, 'matchingFundsTable')">折溢(%)</th>
+                        <th onclick="sortTable(5, 'matchingFundsTable')">標準差</th>
+                        <th onclick="sortTable(6, 'matchingFundsTable')">規模(億)</th>
+                        <th onclick="sortTable(7, 'matchingFundsTable')">成交值(百萬)YTD</th>
+                        <th onclick="sortTable(8, 'matchingFundsTable')">成交量(股)YTD</th>
+                        <th onclick="sortTable(9, 'matchingFundsTable')">報酬率YTD</th>
+                        <th onclick="sortTable(10, 'matchingFundsTable')">管理費</th>
+                        <th onclick="sortTable(11, 'matchingFundsTable')">保管費</th>
+                        <th onclick="sortTable(12, 'matchingFundsTable')">受益人數</th>
+                        <th onclick="sortTable(13, 'matchingFundsTable')">上市日期</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in matching_funds %}
+                    <tr>
+                        <td>{{ item.fund_code }}</td>
+                        <td>{{ item.fund_name }}</td>
+                        <td>{{ item.close_price }}</td>
+                        <td>{{ item.net_worth }}</td>
+                        <td>{{ item.dp_percent }}</td>
+                        <td>{{ item.close_price_std }}</td>
+                        <td>{{ item.totalAv }}</td>
+                        <td>{{ item.valueYTD }}</td>
+                        <td>{{ item.volumeYTD }}</td>
+                        <td>{{ item.rorYTD }}</td>
+                        <td>{{ item.first_management_fee }}</td>
+                        <td>{{ item.first_custody_fee }}</td>
+                        <td>{{ item.holdersNum }}</td>
+                        <td>{{ item.listingDate }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+
+            <!-- 顯示不符合風險類型的基金 -->
+            <h2>各ETF資料排名</h2>
+            <table id="nonMatchingFundsTable" class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable(0, 'nonMatchingFundsTable')">代號</th>
+                        <th onclick="sortTable(1, 'nonMatchingFundsTable')">名稱</th>
+                        <th onclick="sortTable(2, 'nonMatchingFundsTable')">市價</th>
+                        <th onclick="sortTable(3, 'nonMatchingFundsTable')">淨值</th>
+                        <th onclick="sortTable(4, 'nonMatchingFundsTable')">折溢(%)</th>
+                        <th onclick="sortTable(5, 'nonMatchingFundsTable')">標準差</th>
+                        <th onclick="sortTable(6, 'nonMatchingFundsTable')">規模(億)</th>
+                        <th onclick="sortTable(7, 'nonMatchingFundsTable')">成交值(百萬)YTD</th>
+                        <th onclick="sortTable(8, 'nonMatchingFundsTable')">成交量(股)YTD</th>
+                        <th onclick="sortTable(9, 'nonMatchingFundsTable')">報酬率YTD</th>
+                        <th onclick="sortTable(10, 'nonMatchingFundsTable')">管理費</th>
+                        <th onclick="sortTable(11, 'nonMatchingFundsTable')">保管費</th>
+                        <th onclick="sortTable(12, 'nonMatchingFundsTable')">受益人數</th>
+                        <th onclick="sortTable(13, 'nonMatchingFundsTable')">上市日期</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in non_matching_funds %}
+                    <tr>
+                        <td>{{ item.fund_code }}</td>
+                        <td>{{ item.fund_name }}</td>
+                        <td>{{ item.close_price }}</td>
+                        <td>{{ item.net_worth }}</td>
+                        <td>{{ item.dp_percent }}</td>
+                        <td>{{ item.close_price_std }}</td>
+                        <td>{{ item.totalAv }}</td>
+                        <td>{{ item.valueYTD }}</td>
+                        <td>{{ item.volumeYTD }}</td>
+                        <td>{{ item.rorYTD }}</td>
+                        <td>{{ item.first_management_fee }}</td>
+                        <td>{{ item.first_custody_fee }}</td>
+                        <td>{{ item.holdersNum }}</td>
+                        <td>{{ item.listingDate }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
