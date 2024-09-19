@@ -1,0 +1,152 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/ai_chat.css' %}">
+</head>
+<body>
+    <div id="chat-modal" class="chat-modal">
+        <div class="chat-container">
+            <div class="chat-box" id="chat-box">
+                
+                <div class="message ai"><span>您好，我們是E起T資F大財，請問有問題能為您服務的嗎？</span></div>
+            </div>
+          
+            <div id="quick-questions-container">
+                <button id="toggle-quick-questions" type="button" onclick="toggleQuickQuestions()">收起</button>
+                <div id="quick-questions" style="display: none;">
+                    <button type="button" class="quick-question-button" onclick="setQuickQuestion('請介紹一下ETF')">請介紹一下ETF</button>
+                    <button type="button" class="quick-question-button" onclick="setQuickQuestion('請推薦幾個不錯的ETF')">請推薦幾個不錯的ETF</button>
+                    <button type="button" class="quick-question-button" onclick="setQuickQuestion('ETF的風險有哪些？')">ETF的風險有哪些？</button>
+                </div>
+            </div>
+
+            <form class="chat-form" onsubmit="sendMessage(event)">
+                {% csrf_token %}
+                <input type="text" id="user-input" name="message" class="chat-input" placeholder="輸入問題給客服吧~~" />
+                <button type="submit" class="chat-button">➣</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="loading-message">生成中...</div>
+    </div>
+
+    <script>
+
+        
+        function loadChatHistory() {
+            const chatBox = document.getElementById('chat-box');
+            const chatHistory = localStorage.getItem('chatHistory');
+            const quickQuestions = document.getElementById('quick-questions');
+            const loadingOverlay = document.getElementById('loading-overlay');
+
+            
+            if (chatHistory) {
+                chatBox.innerHTML = chatHistory;
+                chatBox.scrollTop = chatBox.scrollHeight;
+                quickQuestions.style.display = 'none';
+            } else {
+                quickQuestions.style.display = 'block'; 
+            }
+        }
+        
+        async function sendMessage(event) {
+            event.preventDefault();
+            const userInput = document.getElementById('user-input').value;
+            const quickQuestions = document.getElementById('quick-questions');
+            const loadingOverlay = document.getElementById('loading-overlay');
+
+            if (userInput.trim() === "") {
+                alert("~問題不可為空喔~");
+                return;
+            }
+
+            loadingOverlay.style.display = 'block';
+
+            const response = await fetch('/ai_chat/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: new URLSearchParams({
+                    'message': userInput
+                })
+            });
+
+            const data = await response.json();
+            const chatBox = document.getElementById('chat-box');
+            if (data.error) {
+                alert(data.error);
+            } else {
+                chatBox.innerHTML += `<div class="message user"><span>${userInput.trim()}</span></div>`;
+                chatBox.innerHTML += `<div class="message ai"><span>${data.response.trim()}</span></div>`;
+                document.getElementById('user-input').value = '';
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+                quickQuestions.style.display = 'none';
+                
+                localStorage.setItem('chatHistory', chatBox.innerHTML);
+            }
+
+            loadingOverlay.style.display = 'none';
+        }
+
+        // 獲取 CSRF Token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function setQuickQuestion(question) {
+            const userInput = document.getElementById('user-input');
+            const loadingOverlay = document.getElementById('loading-overlay');
+            userInput.value = question; 
+            sendMessage(new Event('submit')); 
+        }
+
+        
+        window.onload = function() {
+            loadChatHistory();
+            addEnterKeyListener();
+        };
+
+        function addEnterKeyListener() {
+            const inputField = document.getElementById('user-input');
+            inputField.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault(); 
+                    document.querySelector('.chat-form').dispatchEvent(new Event('submit')); 
+                }
+            });
+        }   
+
+        function toggleQuickQuestions() {
+            const quickQuestions = document.getElementById('quick-questions');
+            const toggleButton = document.getElementById('toggle-quick-questions');
+            
+            if (quickQuestions.style.display === "none" || quickQuestions.style.display === "") {
+                quickQuestions.style.display = "block";
+                toggleButton.innerText = "收起";
+            } else {
+                quickQuestions.style.display = "none";
+                toggleButton.innerText = "展開";
+            }
+        }
+    </script>
+</body>
+</html>
