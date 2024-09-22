@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% include 'intelligent_base.html' %}
+<div class="container-fluid">
+    <hr>
+    <div class="row">
+        <div class="col-lg-2"></div>
+        <div class="col-lg-8">
+            <div class="row">
+                <div class="col-lg-4">
+                    <img src="{% static 'images/正評.png' %}" alt="正評" width="50" height="50">
+                    <h4><strong>情緒得分:0.3~1代表正評</strong></h4>
+                </div>
+                <div class="col-lg-4">
+                    <img src="{% static 'images/負評.png' %}" alt="負評" width="50" height="50">
+                    <h4><strong>情緒得分:-0.3~-1代表負評</strong></h4>
+                </div>
+                <div class="col-lg-4">
+                    <h4><strong>情緒得分:-0.3~0.3代表不好也不壞</strong></h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2"></div>
+    </div>
+    <hr>
+    <div class="row">
+
+        <div class="col-lg-2"></div>
+
+        <div class="col-lg-4">
+            <ul>
+                <h3><a href="{% url 'news_list3' %}" target="_blank" class="news-title">正評新聞</a></h3>
+                {% for single_news in news_list3|slice:"5" %}
+                <li class="ul-hover ul-a ul-b">
+
+                    <div class="row">
+                        
+                        <div class="col-lg-4">
+                            {% if single_news.image_url == 'C:/Users/ntubimd/website/news/static/images/1.png' %}
+                                <img src="{% static 'images/1.png' %}" alt="News Image" width="100%" height="100%" class="img-fluid">
+                            {% else %}
+                                <img src="{{ single_news.image_url }}" alt="News Image" width="100%" height="100%">
+                            {% endif %}
+                        </div>
+                                                   
+                        <div class="col-lg-8">                           
+                            <h5><a href="{{ single_news.link }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.link }}')">{{ single_news.title }}</a></h5>
+                                <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
+                                <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                <!-- 根據情緒得分顯示圖片 -->
+                                {% if single_news.sentiment < -0.3 %}
+                                    <img src="{% static 'images/負評.png' %}" alt="負評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                {% elif single_news.sentiment <= 0.3 %}
+                                    <img src="{% static 'images/一般.png' %}" alt="一般" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                {% else %}
+                                    <img src="{% static 'images/正評.png' %}" alt="正評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                {% endif %}
+                                <p class="news-details"><strong>情绪得分:</strong> {{ single_news.sentiment}}</p>
+                        </div> 
+
+                    </div>
+
+                </li>              
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="col-lg-4">
+            <ul>
+                <h3><a href="{% url 'news_list4' %}" target="_blank" class="news-title">負評新聞</a></h3>
+                {% for single_news in news_list4|slice:"5" %}
+                <li class="ul-hover ul-a ul-b">
+
+                    <div class="row">
+
+                        <div class="col-lg-4">
+                            {% if single_news.image_url == 'C:/Users/ntubimd/website/news/static/images/1.png' %}
+                                <img src="{% static 'images/1.png' %}" alt="News Image" width="100%" height="100%" class="img-fluid">
+                            {% else %}
+                                <img src="{{ single_news.image_url }}" alt="News Image" width="100%" height="100%">
+                            {% endif %}
+                        </div>
+                                                
+                        <div class="col-lg-8">
+                            <h5><a href="{{ single_news.link }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.link }}')">{{ single_news.title }}</a></h5>
+                                <p class="news-details"><strong>上傳日期:</strong> {{ single_news.pub_date }}</p>
+                                <p class="news-details"><strong>新聞平台:</strong> {{ single_news.source }}</p>
+                                <!-- 根據情緒得分顯示圖片 -->
+                                {% if single_news.sentiment < -0.3 %}
+                                    <img src="{% static 'images/負評.png' %}" alt="負評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                {% elif single_news.sentiment <= 0.3 %}
+                                    <img src="{% static 'images/一般.png' %}" alt="一般" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                {% else %}
+                                    <img src="{% static 'images/正評.png' %}" alt="正評" class="sentiment-icon" width="50" height="50" style="float: right;">
+                                {% endif %}
+                                <p class="news-details"><strong>情绪得分:</strong> {{ single_news.sentiment}}</p>
+                        </div> 
+
+                    </div>
+
+                </li>     
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="col-lg-2"></div>
+
+    </div>
+<hr>
+
+<div class="container-fluid">
+
+    <div class="row">
+
+        <div class="col-lg-2"></div>
+
+        <div class="col-lg-4">
+            <h3 class="mt-4">
+                <a href="{% url 'news_list5' %}" target="_blank" class="news-title text-primary">正評ETF排行</a>
+            </h3>
+            
+            <!-- 添加标题列 -->
+            <ul class="list-group mt-3">
+                <li class="list-group-item d-flex justify-content-between align-items-center bg-light font-weight-bold">
+                    <span>ETF代號</span>
+                    <span>ETF名稱</span>
+                    <span>正評數</span>
+                </li>
+                
+                <!-- 正評排行列表 -->
+                {% for single_news in news_list5|slice:"5" %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <!-- 动态生成链接 -->
+                        <a href="{% url 'news_theme' single_news.search_key %}" class="font-weight-bold">{{ single_news.search_key }}</a>
+                        <a href="{% url 'news_theme' single_news.search_key1 %}" class="font-weight-bold">{{ single_news.search_key1 }}</a>
+                        <span class="badge badge-success badge-pill">{{ single_news.positive }}</span>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item text-center text-muted">暂无数据</li>
+                {% endfor %}
+            </ul>
+            
+        </div>
+
+        <div class="col-lg-4">
+            <h3 class="mt-4">
+                <a href="{% url 'news_list6' %}" target="_blank" class="news-title text-primary">負評ETF排行</a>
+            </h3>
+            
+            <!-- 添加标题列 -->
+            <ul class="list-group mt-3">
+                <li class="list-group-item d-flex justify-content-between align-items-center bg-light font-weight-bold">
+                    <span>ETF代號</span>
+                    <span>ETF名稱</span>
+                    <span>負評數</span>
+                </li>
+                
+                <!-- 正評排行列表 -->
+                {% for single_news in news_list6|slice:"5" %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <!-- 动态生成链接 -->
+                        <a href="{% url 'news_theme' single_news.search_key %}" class="font-weight-bold">{{ single_news.search_key }}</a>
+                        <a href="{% url 'news_theme' single_news.search_key1 %}" class="font-weight-bold">{{ single_news.search_key1 }}</a>
+                        <span class="badge badge-danger badge-pill">{{ single_news.negative }}</span>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item text-center text-muted">暂无数据</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="col-lg-2"></div>
+
+    </div>
+
+
+
+    
+    
+
+
+{% endblock %}
