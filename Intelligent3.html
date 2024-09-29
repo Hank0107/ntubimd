@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% include 'intelligent_base.html' %}
+<div class="container mt-3">
+    <hr>
+    <div class="row">
+        <div class="col-12 text-center">
+            <h2><strong>夏普值（Sharpe Ratio）</strong></h4>
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-4">
+            <h4><strong>解釋：</strong></h4>
+            <ul>
+                <li>數字越高越好，代表該投資的性價比高。</li>
+                <li>用於比較不同基金的風險調整後回報。</li>
+            </ul>
+        </div>
+        <div class="col-4">
+            <h4><strong>公式：</strong></h4>
+            <ul>
+                <li>夏普值=
+                    <div class="formula">
+                        <div class="numerator">
+                            基金報酬率 − 無風險利率
+                        </div>
+                        <div class="denominator">
+                            標準差
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="col-4">
+            <h4><strong>應用：</strong></h4>
+            <ul>
+                <li>夏普值高：基金報酬率高且波動小，成長穩定。</li>
+                <li>夏普值低：基金報酬率高但波動大，或報酬率低且風險較小。</li>
+            </ul>
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-12">
+            <!-- ETF 投資組合選擇 (ETF Portfolio Selection) -->
+            <h1>ETF 投資組合選擇</h1>
+            <form method="post" action="{% url 'calculate_portfolio' %}">
+                {% csrf_token %}
+                <label for="etfs">選擇你要的ETF商品:</label><br>
+                <select class="form-select" id="etfs" name="etfs" multiple size="10">
+                    {% for etf in etf_list %}
+                        <option value="{{ etf }}">{{ etf }}</option>
+                    {% endfor %}
+                </select><br><br>
+                <button class="btn btn-secondary" type="submit">計算</button>
+            </form>
+            {% if has_calculated %}
+                <h2 class="text-center">ETF 預期報酬率、標準差及夏普比率</h2>
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>ETF名稱</th>
+                            <th>預期報酬率</th>
+                            <th>標準差</th>
+                            <th>夏普比率</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stock, data in return_dev_matrix.iterrows %}
+                        <tr>
+                            <td>{{ stock }}</td>
+                            <td>{{ data.預期報酬率 }}</td>
+                            <td>{{ data.標準差 }}</td>
+                            <td>{{ data.夏普比率 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <hr>
+                <div class="row text-center">
+                    <div class="col-6">
+                        <h2>效率前緣圖表</h2>
+                        <img src="{% static efficient_frontier_image %}" alt="效率前緣圖表" width="100%">
+                    </div>
+                    <div class="col-6">
+                        <h2>最佳投資組合的權重分配</h2>
+                        <img src="{% static pie_chart_image %}" alt="最佳投資組合的權重分配" width="100%">
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
