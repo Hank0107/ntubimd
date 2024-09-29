@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% include 'intelligent_base.html' %}
+<div class="container-fluid">
+
+    <div class="row">
+
+        <div class="col-lg-2"></div>
+
+        <div class="col-lg-4">
+            <ul>
+                <h3><a href="{% url 'news_list7' %}" target="_blank" class="news-title">正評外部討論版</a></h3>
+
+                <div class="row">
+                    <!-- 添加标题列 -->
+                    <div class="col-8 font-weight-bold bg-light">討論版</div>
+                    <div class="col-2 font-weight-bold bg-light">正評數</div>
+                    <div class="col-2 font-weight-bold bg-light">負評數</div>
+                </div>
+
+                {% for single_news in news_list7|slice:"5" %}
+                <li class="ul-hover ul-a ul-b">
+                    
+                    <div class="row">
+                                                   
+                        <div class="col-lg-8">                           
+                            <h5><a href="{{ single_news.article_link }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.article_link }}')">{{ single_news.article_title }}</a></h5>
+                                
+                        </div> 
+
+                        <div class="col-2">
+                            <span class="badge badge-success badge-pill">{{ single_news.positive }}</span>
+                        </div>
+                        <div class="col-2">
+                            <span class="badge badge-danger badge-pill">{{ single_news.negative }}</span>
+                        </div>
+
+                    </div>
+
+                </li>              
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="col-lg-4">
+            <ul>
+                <h3><a href="{% url 'news_list8' %}" target="_blank" class="news-title">負評外部討論版</a></h3>
+
+                <div class="row">
+                    <!-- 添加标题列 -->
+                    <div class="col-8 font-weight-bold bg-light">討論版</div>
+                    <div class="col-2 font-weight-bold bg-light">正評數</div>
+                    <div class="col-2 font-weight-bold bg-light">負評數</div>
+                </div>
+
+                {% for single_news in news_list8|slice:"5" %}
+                <li class="ul-hover ul-a ul-b">
+                    
+                    <div class="row">
+                                                   
+                        <div class="col-lg-8">                           
+                            <h5><a href="{{ single_news.article_link }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.article_link }}')">{{ single_news.article_title }}</a></h5>
+                                
+                        </div> 
+
+                        <div class="col-2">
+                            <span class="badge badge-success badge-pill">{{ single_news.positive }}</span>
+                        </div>
+                        <div class="col-2">
+                            <span class="badge badge-danger badge-pill">{{ single_news.negative }}</span>
+                        </div>
+
+                    </div>
+
+                </li>              
+                {% endfor %}
+            </ul>
+        </div>
+
+        
+
+        
+
+
+    </div>
+    <hr>
+    <div class="row">
+
+        <div class="col-lg-2"></div>
+
+        <div class="col-lg-4">
+            <ul>
+                <h3><a href="{% url 'news_list7' %}" target="_blank" class="news-title">正評內部討論版</a></h3>
+
+                <div class="row">
+                    <!-- 添加标题列 -->
+                    <div class="col-8 font-weight-bold bg-light">討論版</div>
+                    <div class="col-2 font-weight-bold bg-light">正評數</div>
+                    <div class="col-2 font-weight-bold bg-light">負評數</div>
+                </div>
+
+                {% for single_news in news_list7|slice:"5" %}
+                <li class="ul-hover ul-a ul-b">
+                    
+                    <div class="row">
+                                                   
+                        <div class="col-lg-8">                           
+                            <h5><a href="{{ single_news.article_link }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.article_link }}')">{{ single_news.article_title }}</a></h5>
+                                
+                        </div> 
+
+                        <div class="col-2">
+                            <span class="badge badge-success badge-pill">{{ single_news.positive }}</span>
+                        </div>
+                        <div class="col-2">
+                            <span class="badge badge-danger badge-pill">{{ single_news.negative }}</span>
+                        </div>
+
+                    </div>
+
+                </li>              
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="col-lg-4">
+            <ul>
+                <h3><a href="{% url 'news_list8' %}" target="_blank" class="news-title">負評內部討論版</a></h3>
+
+                <div class="row">
+                    <!-- 添加标题列 -->
+                    <div class="col-8 font-weight-bold bg-light">討論版</div>
+                    <div class="col-2 font-weight-bold bg-light">正評數</div>
+                    <div class="col-2 font-weight-bold bg-light">負評數</div>
+                </div>
+
+                {% for single_news in news_list8|slice:"5" %}
+                <li class="ul-hover ul-a ul-b">
+                    
+                    <div class="row">
+                                                   
+                        <div class="col-lg-8">                           
+                            <h5><a href="{{ single_news.article_link }}" target="_blank" class="news-title" onclick="trackClick('{{ single_news.article_link }}')">{{ single_news.article_title }}</a></h5>
+                                
+                        </div> 
+
+                        <div class="col-2">
+                            <span class="badge badge-success badge-pill">{{ single_news.positive }}</span>
+                        </div>
+                        <div class="col-2">
+                            <span class="badge badge-danger badge-pill">{{ single_news.negative }}</span>
+                        </div>
+
+                    </div>
+
+                </li>              
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+
+
+
+{% endblock %}
