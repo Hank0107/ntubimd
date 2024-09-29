@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% include 'intelligent_base.html' %}
+<div class="container mt-3" style="background-color: #f9f9f9;">
+    <!-- Add the header image -->
+    <div class="row">
+        <div class="col-12">
+            <img src="{% static 'images/123.png' %}" alt="投資屬性分析問卷" style="width:100%; max-width: 100%;">
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <form id="quizForm" style="color: #1c1c1c;">
+                <!-- 問題 1 -->
+                <div class="question mb-3">
+                    <h2 style="color: #000000; font-weight: bold;">問題 1: 你目前的年齡？</h2>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming1" value="5"> 0-20歲
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming1" value="4"> 21-40歲
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming1" value="3"> 41-50歲
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming1" value="2"> 51-60歲
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming1" value="1"> 60歲以上
+                        </label>
+                    </div>
+                </div>
+                <!-- 問題 2 (和其他問題同樣的處理方式) -->
+                <div class="question mb-3">
+                    <h2 style="color: #000000; font-weight: bold;">問題 2: 你打算什麼時候開始投資？</h2>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming2" value="5"> 21年後
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming2" value="4"> 11至20年後
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming2" value="3"> 6至10年後
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming2" value="2"> 2至5年後
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming2" value="1"> 2年以內
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- 問題 3 -->
+                <div class="question mb-3">
+                    <h2 style="color: #000000; font-weight: bold;">問題 3: 你的長期理財目標是什麼？</h2>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming3" value="3"> 我要讓資產快速增長
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming3" value="2"> 我希望資產穩穩地成長
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming3" value="1"> 我不希望有任何損失
+                        </label>
+                    </div>
+                </div>
+    
+                <!-- 問題 4 -->
+                <div class="question mb-3">
+                    <h2 style="color: #000000; font-weight: bold;">問題 4: 你對投資的態度更接近哪一種？</h2>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming4" value="5"> 我願意承擔較大的風險來追求高額回報！
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming4" value="4"> 我希望獲得不錯的回報，所以能接受一定的風險
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming4" value="3"> 我希望在風險與回報之間找到平衡點
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming4" value="2"> 我更希望穩定，不在乎低一點之回報
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming4" value="1"> 我想完全避開風險，低回報也沒關係
+                        </label>
+                    </div>
+                </div>
+    
+                <!-- 問題 5 -->
+                <div class="question mb-3">
+                    <h2 style="color: #000000; font-weight: bold;">問題 5: 通貨膨脹讓你思考投資時，你的反應是？</h2>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming5" value="3"> 我要讓投資回報遠遠超過通脹，即使要承擔較大的風險
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming5" value="2"> 我的目標是讓投資回報略高於通脹，承擔一些風險也行
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming5" value="1"> 我希望投資回報能跟上通脹，風險越小越好
+                        </label>
+                    </div>
+                </div>
+    
+                <!-- 問題 6 -->
+                <div class="question mb-3">
+                    <h2 style="color: #000000; font-weight: bold;">問題 6: 假設你的投資突然大漲了20%，你會怎麼做？</h2>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming6" value="5"> 太棒了！我要加碼投資，抓住機會！
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming6" value="4"> 繼續持有，看看能不能漲得更多
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming6" value="3"> 賣掉一小部分，先賺一點回來
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming6" value="2"> 賣掉大部分，落袋為安
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming6" value="1"> 全部賣掉，不賺白不賺！
+                        </label>
+                    </div>
+                </div>
+    
+                <!-- 問題 7 -->
+                <div class="question mb-3">
+                    <h2 style="color: #000000; font-weight: bold;">問題 7: 假設你的投資在一年內下跌了25%，你會怎麼辦？</h2>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming7" value="5"> 這是個撿便宜的好時機，加碼投資！
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming7" value="4"> 繼續持有，相信市場會回來的
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming7" value="3"> 賣掉一小部分，留點現金以備不時之需
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming7" value="2"> 賣掉大部分，減少損失
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="btn btn-outline-dark m-1">
+                            <input type="radio" name="investmentTiming7" value="1"> 全部賣掉，我不想再虧了
+                        </label>
+                    </div>
+                </div>
+    
+                <button type="button" onclick="calculateScore()">提交</button>
+            </form>
+            <div id="result" class="hidden">
+                <img id="resultImage" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="投資者類型" width="300" height="300" />
+                <h1 id="resultText"></h1>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 在底部包含scripts.js文件 -->
+<script src="{% static 'js/scripts.js' %}"></script>
+{% endblock %}
