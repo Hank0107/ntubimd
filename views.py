@@ -3,6 +3,7 @@ from .models import Article, Comment
 from .forms import ArticleForm, CommentForm 
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 def article_list(request):
     articles = Article.objects.all()
