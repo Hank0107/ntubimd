@@ -920,3 +920,38 @@ def save_risk_assessment(request):
 
 
 
+# 創建模型
+generation_config = {
+    "temperature": 0.4,
+    "top_p": 0.85,
+    "top_k": 50,
+    "max_output_tokens": 8192,
+    "response_mime_type": "text/plain",
+}
+
+model = genai.GenerativeModel(
+    model_name="gemini-1.5-flash",
+    generation_config=generation_config,
+)
+
+with open('training_data.json', 'r', encoding='utf-8') as f:
+    history_data = json.load(f)
+
+
+chat_session = model.start_chat(history=history_data)
+
+@xframe_options_sameorigin
+def ai_chat(request):
+    if request.method == 'POST':
+        user_message = request.POST.get('message', '').strip()
+        if not user_message:
+            return JsonResponse({'error': 'Message cannot be empty.'}, status=400)
+        
+        response = chat_session.send_message(user_message)
+        ai_response = response.text
+        ai_response_filtered = ai_response.replace('*', '')
+
+        return JsonResponse({'response': ai_response_filtered})
+    
+    return render(request, 'article_board/chat.html')
+
